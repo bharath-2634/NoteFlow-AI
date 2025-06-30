@@ -10,7 +10,7 @@ const authRouter = require('./routers/auth/auth-router');
 require('dotenv').config();
 
 mongoose
-  .connect("mongodb+srv://bharath2005goo:bharath2634@cluster0.hssjvxz.mongodb.net/")
+  .connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDB connected"))
   .catch((error) => console.log(error));
 
