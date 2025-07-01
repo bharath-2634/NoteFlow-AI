@@ -1,21 +1,27 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import logo from '../../assests/logo.png';
-
+import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SplashScreen = ({ navigation }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const isAuthenticated = false;
-      if (isAuthenticated) {
-        navigation.replace('Home');
-      } else {
-        navigation.replace('Login');
-      }
-    }, 3000); 
 
-    return () => clearTimeout(timer);
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem('token');
+      
+      setTimeout(() => {
+        if (token) {
+          navigation.replace('Home');
+        } else {
+          navigation.replace('Login');
+        }
+      }, 3000);
+    };
+
+    checkAuth();
   }, []);
+
 
   return (
     <View style={styles.container}>

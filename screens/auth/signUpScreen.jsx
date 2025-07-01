@@ -8,6 +8,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import { ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import GoogleLoginButton from '../common/googleBtn';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const SignUpScreen = ({ navigation }) => {
 
@@ -30,8 +32,17 @@ const SignUpScreen = ({ navigation }) => {
     const resultAction = await dispatch(registerUser({ userName, email, password }));
     // Alert.alert("Failed", resultAction.payload?.message);
     if (registerUser.fulfilled.match(resultAction)) {
-      Alert.alert("Success", "Registration successful");
-      navigation.replace("Home");
+       const token = resultAction.payload.token;
+
+       if(token) {
+        await AsyncStorage.setItem("token", token);
+        Alert.alert("Success", "Login successful");
+        navigation.replace("Home");
+       }else {
+        Alert.alert("Error", "Token missing in response");
+       }
+      // Alert.alert("Success", "Registration successful");
+      // navigation.replace("Home");
     } else {
       Alert.alert("Failed", resultAction.payload?.message);
     }
@@ -125,11 +136,14 @@ const SignUpScreen = ({ navigation }) => {
           </View>
           
           <View style={styles.end_view}>
-              <Text style={styles.link_text}>Already have an account ? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                    <Text style={styles.linkText}>SignIn</Text>
-              </TouchableOpacity>
+            <Text style={styles.link_text}>
+              Already have an account?{' '}
+              <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
+                SignIn
+              </Text>
+            </Text>
           </View>
+
 
 
         </View>

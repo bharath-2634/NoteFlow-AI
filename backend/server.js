@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
     cors({
-      origin: "http://192.168.1.3:19006",
+      origin: "http://10.1.4.63:19006",
       methods: ["GET", "POST", "DELETE", "PUT"],
       allowedHeaders: [
         "Content-Type",

@@ -3,6 +3,7 @@ import { TouchableOpacity, Text, StyleSheet, Image, Alert } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useDispatch } from 'react-redux';
 import { googleLogin } from '../../store/auth/index';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const GoogleLoginButton = () => {
   const dispatch = useDispatch();
@@ -28,12 +29,7 @@ const GoogleLoginButton = () => {
 
   return (
     <TouchableOpacity style={styles.button} onPress={handleGoogleSignIn}>
-      <Image
-        source={{
-          uri: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_favicon_2015.png',
-        }}
-        style={styles.icon}
-      />
+      <AntDesign name="google" size={24} color="#7F7F7F" style={styles.input_icon} />
       <Text style={styles.text}>Sign in with Google</Text>
     </TouchableOpacity>
   );
@@ -45,20 +41,19 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1D1D1D',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
     elevation: 3,
     marginTop: 16,
   },
-  icon: {
-    width: 20,
-    height: 20,
-    marginRight: 12,
+  input_icon: {
+    marginRight:20,
+    marginLeft:10
   },
   text: {
     fontSize: 16,
-    color: '#000',
+    color: '#ccc',
   },
 });

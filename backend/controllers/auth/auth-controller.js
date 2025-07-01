@@ -14,6 +14,7 @@ const registerUser = async (req, res) => {
 
         let userExists = await User.findOne({ email });
         console.log("After Check",userExists)
+        
         if (userExists)
             return res.status(400).json({
                 success: false,
@@ -60,7 +61,7 @@ const registerUser = async (req, res) => {
             { expiresIn: "7d" }
         );
 
-        res.cookie("token", token, { httpOnly: true, secure: false });
+        // res.cookie("token", token, { httpOnly: true, secure: false });
 
         res.status(200).json({
             success: true,
@@ -122,9 +123,10 @@ const loginUser = async (req, res) => {
             { expiresIn: "7d" }
         );
 
-        res.cookie("token", token, { httpOnly: true, secure: false }).json({
+        res.json({
             success: true,
             message: "Logged in successfully",
+            token,
             user: {
                 email: checkUser.email,
                 id: checkUser._id,
@@ -214,6 +216,7 @@ const logoutUser = (req, res) => {
 
 const authMiddleware = async (req, res, next) => {
     const token = req.cookies.token;
+
     if (!token)
       return res.status(401).json({
         success: false,
