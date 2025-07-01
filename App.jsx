@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -9,10 +9,16 @@ import SplashScreen from './screens/splash/splashScreen.jsx';
 import LoginScreen from './screens/auth/loginScreen.jsx';
 import HomeScreen from './screens/home/homeScreen.jsx';
 import SignUpScreen from './screens/auth/signUpScreen.jsx';
+import { setupGoogleSignin } from './utils/googleBtn.js';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
+
+  useEffect(()=>{
+    setupGoogleSignin();
+  },[]);
+
   return (
     <Provider store={store}>
       <NavigationContainer>
