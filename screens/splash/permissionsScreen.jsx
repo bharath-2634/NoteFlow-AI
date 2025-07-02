@@ -1,8 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Linking, Platform, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  PermissionsAndroid,
+  Platform,
+  Linking,
+  StyleSheet,
+  Image
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-// import { request, check, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
-import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import logo from "../../assests/logo.png";
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchUserById, updateUserProfile } from '../../store/auth';
+
+
 
 const PermissionScreen = ({ navigation }) => {
   const [stepIndex, setStepIndex] = useState(0);
@@ -11,112 +25,275 @@ const PermissionScreen = ({ navigation }) => {
   const permissionSteps = [
     {
       label: 'Storage Access',
-      type: PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
-      requestType: 'normal',
+      type: Platform.Version >= 33
+        ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
+        : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      method: 'request',
     },
     {
       label: 'Manage Files',
-      type: 'MANAGE_EXTERNAL_STORAGE',
-      requestType: 'intent',
+      method: 'intent',
+      settingsURL: 'android.settings.MANAGE_ALL_FILES_ACCESS_PERMISSION',
     },
     {
       label: 'Notification Access',
-      type: PERMISSIONS.ANDROID.POST_NOTIFICATIONS,
-      requestType: 'normal',
+      type: PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+      method: 'request',
     },
     {
-      label: 'Battery Optimization',
-      type: 'IGNORE_BATTERY_OPTIMIZATION',
-      requestType: 'intent',
+      label: 'Ignore Battery Optimization',
+      method: 'intent',
+      settingsURL: 'android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS',
     },
   ];
 
   useEffect(() => {
-    if (stepIndex < permissionSteps.length) askPermission(permissionSteps[stepIndex]);
+    if (stepIndex < permissionSteps.length) {
+      handlePermission(permissionSteps[stepIndex]);
+    }
   }, [stepIndex]);
 
-  const askPermission = async (step) => {
+  const handlePermission = async (step) => {
     try {
-      if (step.requestType === 'normal') {
-        const result = await request(step.type);
-        const granted = result === RESULTS.GRANTED;
-        updateStatus(granted);
+      if (step.method === 'request') {
+        const result = await PermissionsAndroid.request(step.type);
+        updateStatus(step.label, result === PermissionsAndroid.RESULTS.GRANTED, result);
+      } else if (step.method === 'intent') {
+        const settingsIntent = `intent://${step.settingsURL}`;
+        await Linking.openSettings();
+        updateStatus(step.label, true, 'INTENT');
       }
-
-      else if (step.type === 'MANAGE_EXTERNAL_STORAGE') {
-        const granted = await Linking.openSettings(); // native intent for All Files Access
-        updateStatus(true); // assume granted for now (you can check via `getExternalStorageManager`)
-      }
-
-      else if (step.type === 'IGNORE_BATTERY_OPTIMIZATION') {
-        const granted = await Linking.openSettings(); // or send intent to ignore optimization
-        updateStatus(true); // assume granted
-      }
-
     } catch (err) {
-      console.error(err);
-      updateStatus(false);
+      console.warn(err);
+      updateStatus(step.label, false, 'ERROR');
     }
   };
 
-  const updateStatus = (granted) => {
-    const current = permissionSteps[stepIndex];
-    setStatusList((prev) => [
-      ...prev,
-      { label: current.label, granted }
-    ]);
+  const updateStatus = (label, granted, raw) => {
+    console.log(`${label} → ${raw}`);
+    setStatusList((prev) => [...prev, { label, granted }]);
     setTimeout(() => {
       setStepIndex((prev) => prev + 1);
     }, 1000);
   };
 
-  const allGranted = statusList.length === permissionSteps.length && statusList.every(p => p.granted);
+  const allGranted =
+    statusList.length === permissionSteps.length &&
+    statusList.every((step) => step.granted);
 
-  const handleStart = () => {
-    if (!allGranted) {
-      Alert.alert("Permissions Required", "Please accept all permissions to continue.");
-      return;
+  const [acceptedGuidelines, setAcceptedGuidelines] = useState(false);
+
+  const dispatch = useDispatch();
+  
+  const [user,setUser] = useState(null);
+
+  const decodeJWT = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (err) {
+      console.error("Invalid JWT", err);
+      return null;
     }
-    navigation.replace("Home");
   };
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem('token');
+      
+      setTimeout(() => {
+        if (token) {
+           const decoded = decodeJWT(token);
+          //  console.log("users",decoded?.userId);
+          dispatch(fetchUserById(decoded?.userId)).then((res)=>setUser(res.payload?.user)).catch((error)=>{console.log(error)});
+          
+        } else {
+          navigation.replace('Login');
+        }
+      }, 3000);
+    };
+
+    checkAuth();
+  }, []);
+
+
+  const handleStart = async () => {
+    if (!allGranted || !acceptedGuidelines) {
+      Alert.alert('Required', 'Please grant all permissions and accept the guidelines to continue.');
+      return;
+    }
+
+    try {
+      const updatedUser = {
+        ...user,
+        permissions: true
+      };
+
+      await dispatch(updateUserProfile(updatedUser)).then((res)=>console.log(res)).catch((error)=>console.log(error));
+      // console.log("Updated User Profile");
+      navigation.replace('Home');
+    } catch (err) {
+      console.error('Failed to update user permissions:', err);
+      Alert.alert('Error', 'Failed to update your profile. Please try again.');
+    }
+  };
+
+
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#111', padding: 24, justifyContent: 'center' }}>
-      <Text style={{ color: 'white', fontSize: 24, marginBottom: 20, fontWeight: 'bold' }}>Permissions</Text>
+    <View style={styles.container}>
+      
+      <View style={styles.permissions_header}>
+          <Image
+              style={styles.logo}
+              source={logo}
+          />
+          <Text style={styles.primary_text}>NoteFlow AI.</Text>
+      </View>
 
-      {permissionSteps.map((step, index) => {
-        const status = statusList[index];
-        const iconName = status
-          ? status.granted ? 'checkmark-circle' : 'close-circle'
-          : 'ellipse-outline';
+      <View style={styles.permissions_glassCard}>
+        <Text style={styles.primary_description}>
+          Your smart companion for effortless document organization. Classify, summarize, and chat with your files, instantly. Transform your learning journey, one note at a time...
+        </Text>
+        <Text style={styles.primary_description_title}>Permissions</Text>
+          {
+            permissionSteps.map((step, index) => {
+            const status = statusList[index];
+            const iconName = status
+              ? status.granted
+                ? 'checkmark-circle'
+                : 'close-circle'
+              : 'ellipse-outline';
 
-        const iconColor = status
-          ? status.granted ? 'green' : 'red'
-          : 'gray';
+            const iconColor = status
+              ? status.granted
+                ? 'green'
+                : 'red'
+              : 'gray';
 
-        return (
-          <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}>
-            <Icon name={iconName} size={22} color={iconColor} style={{ marginRight: 8 }} />
-            <Text style={{ color: 'white', fontSize: 16 }}>{step.label}</Text>
+              return (
+                <View
+                  key={index}
+                  style={styles.permissions_list}
+                >
+                  <Icon name={iconName} size={22} color={iconColor} style={{ marginRight: 8 }} />
+                  <Text style={{ color: 'white', fontSize: 16 }}>{step.label}</Text>
+                </View>
+              );
+            })
+          }
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+            <TouchableOpacity
+              onPress={() => setAcceptedGuidelines(!acceptedGuidelines)}
+              style={{
+                height: 20,
+                width: 20,
+                borderWidth: 1,
+                borderColor: '#ccc',
+                backgroundColor: acceptedGuidelines ? '#3A1FC0' : 'transparent',
+                marginRight: 10,
+                borderRadius: 4,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {acceptedGuidelines && <Icon name="checkmark" size={14} color="white" />}
+            </TouchableOpacity>
+            <Text style={{ color: '#ccc', fontSize: 11, flex: 1 }}>
+              I accept all the guidelines and privacy conditions.
+            </Text>
           </View>
-        );
-      })}
 
+      </View>
+
+    
       <TouchableOpacity
-        disabled={!allGranted}
+        disabled={!(allGranted && acceptedGuidelines)}
         onPress={handleStart}
         style={{
-          backgroundColor: allGranted ? '#9747FF' : '#444',
+          backgroundColor: allGranted && acceptedGuidelines ? '#3A1FC0' : '#444',
           padding: 14,
           borderRadius: 10,
           marginTop: 30,
-          alignItems: 'center'
+          width:300,
+          alignItems: 'center',
         }}
       >
-        <Text style={{ color: 'white', fontSize: 16 }}>Start now →</Text>
+        <Text style={{ color: 'white', fontSize: 16 }}>Continue with NoteFlow AI</Text>
       </TouchableOpacity>
+
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start', // Changed from 'center'
+    backgroundColor: '#1F1F1F',
+    paddingTop: 40, // To push everything slightly down
+  },
+  permissions_header: {
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  logo : {
+    width: 106,
+    height: 118,
+  },
+  primary_text : {
+    fontSize : 30,
+    color : '#fff',
+    fontWeight : 'bold'
+  },
+  permissions_glassCard : {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)', // transparent white
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
+    // flex : 1,
+    justifyContent : 'start',
+    flexDirection : 'column',
+    marginRight:20,
+    marginLeft:20
+  },
+  primary_description : {
+    fontSize : 17,
+    color:'#ccc',
+    fontWeight:'medium'
+  },
+  primary_description_title : {
+    fontSize:17,
+    color:'#ccc',
+    fontWeight:'bold',
+    marginTop:20,
+    marginBottom:20
+  },
+  permissions_list : {
+    flexDirection: 'row',
+    alignItems: 'center', 
+    marginVertical: 12, 
+    marginLeft:25 
+  },
+ 
+
+});
 
 export default PermissionScreen;

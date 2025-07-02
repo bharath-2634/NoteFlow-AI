@@ -271,5 +271,45 @@ const getUser = async (req, res) => {
   }
 };
 
+const updateUser = async (req,res) => {
+    try {
+        // const {id}  = req.params;
+        const {user} = req.body;
+        console.log("user from backend",user);
+        if(!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User instance required",
+            });
+        }
+        const userId = user._id;
+
+        if(!userId) {
+            console.log("No UserId found");
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {$set : user},
+            {new : true}
+        );
+
+        console.log("updated user",updatedUser);
+
+        res.status(200).json({
+            success: true,
+            message: "User updated successfully",
+            user: updatedUser
+        });
+
+    }catch(error) {
+        console.error(error.message);
+        res.status(500).json({
+        success: false,
+        message: "Server Error!",
+        });
+    }
+}
+
   
-module.exports = { registerUser, loginUser, googleAuth , logoutUser , authMiddleware,getUser};
+module.exports = { registerUser, loginUser, googleAuth , logoutUser , authMiddleware, getUser, updateUser};

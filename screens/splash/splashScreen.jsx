@@ -32,30 +32,47 @@ const SplashScreen = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = await AsyncStorage.getItem('token');
-      
-      setTimeout(() => {
-        if (token) {
-           const decoded = decodeJWT(token);
-          //  console.log("users",decoded?.userId);
-          dispatch(fetchUserById(decoded?.userId)).then((res)=>setUser(res.payload?.user)).catch((error)=>{console.log(error)});
-          if(user?.permissions) {
+ useEffect(() => {
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem('token');
+
+    if (!token) {
+      setTimeout(() => navigation.replace('Login'), 3000);
+      return;
+    }
+
+    const decoded = decodeJWT(token);
+    if (!decoded?.userId) {
+      setTimeout(() => navigation.replace('Login'), 3000);
+      return;
+    }
+
+    try {
+      const res = await dispatch(fetchUserById(decoded.userId));
+      const fetchedUser = res.payload?.user;
+
+      if (fetchedUser) {
+        setUser(fetchedUser);
+        setTimeout(() => {
+          if (fetchedUser.permissions) {
             navigation.replace('Home');
-          }else {
+          } else {
             navigation.replace('Permissions');
           }
+        }, 3000);
+      } else {
+        setTimeout(() => navigation.replace('Login'), 3000);
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      setTimeout(() => navigation.replace('Login'), 3000);
+    }
+  };
 
-          
-        } else {
-          navigation.replace('Login');
-        }
-      }, 3000);
-    };
-
-    checkAuth();
+  checkAuth();
   }, []);
+
+
 
 
   return (
