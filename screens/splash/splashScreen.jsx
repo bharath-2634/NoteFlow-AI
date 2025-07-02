@@ -1,10 +1,36 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, Alert } from 'react-native';
 import logo from '../../assests/logo.png';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchUserById } from '../../store/auth';
+
+// import jwtDecode from 'jwt-decode';
+// import { jwtDecode } from 'jwt-decode';
+// const jwtDecode = require('jwt-decode');
 
 const SplashScreen = ({ navigation }) => {
+
+  const dispatch = useDispatch();
+
+  const [user,setUser] = useState(null);
+
+  const decodeJWT = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (err) {
+      console.error("Invalid JWT", err);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -12,7 +38,16 @@ const SplashScreen = ({ navigation }) => {
       
       setTimeout(() => {
         if (token) {
-          navigation.replace('Home');
+           const decoded = decodeJWT(token);
+          //  console.log("users",decoded?.userId);
+          dispatch(fetchUserById(decoded?.userId)).then((res)=>setUser(res.payload?.user)).catch((error)=>{console.log(error)});
+          if(user?.permissions) {
+            navigation.replace('Home');
+          }else {
+            navigation.replace('Permissions');
+          }
+
+          
         } else {
           navigation.replace('Login');
         }

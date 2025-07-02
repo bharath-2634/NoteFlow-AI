@@ -28,6 +28,10 @@ const UserSchema = new mongoose.Schema({
     required: true 
   },
   className : [String],
+  permissions: {
+    type: Boolean,
+    default : false,
+  },
   metadata: {
     created_at: {
       type: Date,

@@ -255,11 +255,13 @@ const getUser = async (req, res) => {
       });
     }
 
+    console.log("user_backend",user);
     return res.json({
       success: true,
       user,
       message: "Found User!",
     });
+    
   } catch (error) {
     console.error(error.message);
     res.status(500).json({

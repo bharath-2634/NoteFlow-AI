@@ -14,7 +14,7 @@ export const registerUser = createAsyncThunk(
       try {
         console.log("Entered here!",formData);
           const response = await axios.post(
-              `http://10.1.4.63:5000/api/auth/register`,
+              `http://192.168.1.3:5000/api/auth/register`,
               formData,
           );
           console.log("userData",response);
@@ -30,7 +30,7 @@ export const loginUser = createAsyncThunk(
   "/auth/login",
   async (formData) => {
     const response = await axios.post(
-      `http://10.1.4.63:5000/api/auth/login`,
+      `http://192.168.1.3:5000/api/auth/login`,
       formData,
       {
         withCredentials: true,
@@ -107,9 +107,10 @@ export const fetchUserById = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/auth/user/${userId}`,
+        `http://192.168.1.3:5000/api/auth/user/${userId}`,
         { withCredentials: true }
       );
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
