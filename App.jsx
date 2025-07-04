@@ -12,9 +12,11 @@ import SignUpScreen from './screens/auth/signUpScreen.jsx';
 import PermissionsScreen from './screens/splash/permissionsScreen.jsx';
 import { setupGoogleSignin } from './utils/googleBtn.js';
 
+
 const Stack = createNativeStackNavigator();
 
 const App = () => {
+
 
   useEffect(()=>{
     setupGoogleSignin();
