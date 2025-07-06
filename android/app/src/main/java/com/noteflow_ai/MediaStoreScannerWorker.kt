@@ -65,6 +65,8 @@ class MediaStoreScannerWorker(
                 val mimeTypeColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
                 val dateModifiedColumn = it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED) // Get date modified
 
+                Log.d(TAG, "Started Scanning.")
+
                 while (it.moveToNext()) {
                     val id = it.getLong(idColumn)
                     val displayName = it.getString(displayNameColumn)
@@ -78,13 +80,17 @@ class MediaStoreScannerWorker(
 
                     // Check if this URI was not in the previously scanned set
                     // For re-classification on modification, you'd need to store (URI, timestamp) tuples
+                    Log.d(TAG,"Scanned URI's ${scannedUris}")
                     if (!scannedUris.contains(docUriString)) {
                         newDocsToClassify.add(docUri)
                         Log.d(TAG, "New document detected: $displayName (URI: $docUriString, Mime: $mimeType, Modified: $dateModified)")
                     }
                 }
+
+                Log.d(TAG, "End of Scanning")
             }
 
+            Log.d(TAG, "Out of My Scanning ${newDocsToClassify}")
             // Enqueue classification tasks for new documents
             if (newDocsToClassify.isNotEmpty()) {
                 Log.i(TAG, "Found ${newDocsToClassify.size} new documents. Scheduling classification.")
