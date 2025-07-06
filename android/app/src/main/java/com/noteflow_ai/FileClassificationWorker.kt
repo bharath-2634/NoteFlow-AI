@@ -1,4 +1,4 @@
-package com.noteflow_ai // Ensure this matches your actual package name (e.g., com.noteflow_ai)
+package com.noteflow_ai
 
 import android.app.DownloadManager
 import android.content.Context
@@ -19,6 +19,34 @@ import okhttp3.Response // OkHttp HTTP response
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit // For OkHttpClient timeouts
+import com.noteflow_ai.AppDatabase
+import com.noteflow_ai.ClassifiedDocument
+import com.noteflow_ai.ClassifiedDocumentDao
+import org.json.JSONObject
+
+fun extractLabelFromResponse(responseBody: String?): String? {
+    return try {
+        responseBody?.let {
+            val json = JSONObject(it)
+            json.optString("label", null)
+        }
+    } catch (e: Exception) {
+        Log.e("ParseError", "Failed to extract label: ${e.message}", e)
+        null
+    }
+}
+
+fun extractDocumentId(responseBody: String?): String? {
+    return try {
+        responseBody?.let {
+            val json = JSONObject(it)
+            json.optString("document_id", null)
+        }
+    } catch (e: Exception) {
+        Log.e("ParseError", "Failed to extract document ID: ${e.message}", e)
+        null
+    }
+}
 
 // FileClassificationWorker must extend CoroutineWorker for suspend functions
 class FileClassificationWorker(appContext: Context, workerParams: WorkerParameters)
@@ -50,6 +78,11 @@ class FileClassificationWorker(appContext: Context, workerParams: WorkerParamete
         val fileUri = Uri.parse(uriString)
         Log.d(TAG, "Attempting to classify file from URI: $fileUri")
 
+        val db = AppDatabase.getInstance(applicationContext)
+        val dao = db.documentDao()
+
+        
+
         // --- Read file bytes from URI (most reliable way for content URIs) ---
         val fileBytes = readFileBytesFromUri(applicationContext, fileUri)
         val fileName = getFileNameFromUri(applicationContext, fileUri) ?: "unknown_file"
@@ -60,11 +93,19 @@ class FileClassificationWorker(appContext: Context, workerParams: WorkerParamete
         }
 
         // 🧠 Call your API with file bytes
-        return@withContext classifyDocument(fileBytes, fileName)
+        // return@withContext classifyDocument(fileBytes, fileName)
+        return@withContext classifyDocument(fileUri, fileName, fileBytes, dao)
+
     }
 
     // Function to classify document using its bytes and filename
-    private suspend fun classifyDocument(fileBytes: ByteArray, fileName: String): Result {
+    private suspend fun classifyDocument(
+        fileUri: Uri,
+        fileName: String,
+        fileBytes: ByteArray,
+        dao: ClassifiedDocumentDao
+    ): Result {
+
         val client = OkHttpClient.Builder()
             .connectTimeout(120, TimeUnit.SECONDS) // Added timeouts
             .readTimeout(120, TimeUnit.SECONDS)
@@ -86,14 +127,49 @@ class FileClassificationWorker(appContext: Context, workerParams: WorkerParamete
 
             if (response.isSuccessful) {
                 val responseBody = response.body?.string()
+                Log.d(TAG, "Raw API response: $responseBody")
+
+                val classificationResult = extractLabelFromResponse(responseBody)
+                val docId = extractDocumentId(responseBody)
+
+                Log.d(TAG, "Extracted -> label: $classificationResult | docId: $docId")
+
+                try {
+                    dao.insert(
+                        ClassifiedDocument(
+                            uri = fileUri.toString(),
+                            fileName = fileName,
+                            classification = classificationResult,
+                            documentId = docId,
+                            status = "classified",
+                            timestamp = System.currentTimeMillis()
+                        )
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "DB insertion failed: ${e.message}", e)
+                    return Result.failure()
+                }
+
+                val allDocs = dao.getAll()
+                for (doc in allDocs) {
+                    Log.d("DB-Dump", "Doc: ${doc.fileName}, Status: ${doc.status}, Label: ${doc.classification}")
+                }
+
                 Log.d(TAG, "API success: ${response.code}. Response: $responseBody")
-                // TODO: Parse response for classification category and document_id
-                // TODO: Show notification here (e.g., using NotificationManager)
-                // TODO: Move file here (requires SAF DocumentFile API and user-granted URI)
-                Result.success()
+                return Result.success()
             } else {
                 val errorBody = response.body?.string()
                 Log.e(TAG, "API error: ${response.code} - ${response.message}. Body: $errorBody")
+                dao.insert(
+                    ClassifiedDocument(
+                        uri = fileUri.toString(),
+                        fileName = fileName,
+                        classification = null,
+                        documentId = null,
+                        status = "failed",
+                        timestamp = System.currentTimeMillis()
+                    )
+                )
                 Result.failure()
             }
         } catch (e: IOException) {

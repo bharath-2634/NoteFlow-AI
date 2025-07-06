@@ -8,6 +8,7 @@ buildscript {
         targetSdkVersion = 35
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.1.20"
+        // room_version = "2.7.2"
     }
     repositories {
         
@@ -20,6 +21,14 @@ buildscript {
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
         // classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20")
+        // classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.9.0-1.0.13")
+        // classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.9.20-1.0.14") // Try this version
+        // classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.9.21-1.0.15") // Or this one 
+        // classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.8.20-1.0.11")
+        // classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.1.20-1.0.20")
+        classpath("com.google.devtools.ksp:symbol-processing-gradle-plugin:2.1.20-1.0.20")
+
+
     }
 }
 
