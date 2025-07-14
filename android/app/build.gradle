@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-apply plugin: 'com.google.devtools.ksp'
+apply plugin: "com.google.devtools.ksp"
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 /**
@@ -124,15 +124,10 @@ dependencies {
 
      def room_version = "2.6.1" // Or latest
 
-    // implementation "androidx.room:room-runtime:$room_version"
-    // kapt "androidx.room:room-compiler:$room_version"
-
-    implementation "androidx.room:room-ktx:2.6.1"
-
     implementation "androidx.room:room-runtime:2.6.1"
-    // kapt "androidx.room:room-compiler:2.6.1"
-    ksp "androidx.room:room-compiler:2.7.2"
-    // kapt "android.arch.persistence.room:compiler:1.1.1"
+    implementation "androidx.room:room-ktx:2.6.1"
+    ksp "androidx.room:room-compiler:2.6.1"
+
 
     
     if (hermesEnabled.toBoolean()) {
