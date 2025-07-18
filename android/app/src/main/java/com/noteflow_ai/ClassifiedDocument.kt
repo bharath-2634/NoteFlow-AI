@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class ClassifiedDocument(
     @PrimaryKey val uri: String,
     val fileName: String,
-    val classification: String?, // Nullable String? ✅ OK
-    val documentId: String?,     // Nullable String? ✅ OK
-    val status: String,          // ✅ Non-nullable
-    val timestamp: Long          // ✅ Primitive long
+    val classification: String?,
+    val documentId: String?,     
+    val status: String,         
+    val timestamp: Long          
 )
