@@ -11,8 +11,12 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.widget.Button
+import com.noteflow_ai.WhatsAppFileObserver
+
 
 class MainActivity : ReactActivity() {
+    private var observer: WhatsAppFileObserver? = null
+
     override fun getMainComponentName(): String = "NoteFlow_AI"
 
     override fun createReactActivityDelegate(): ReactActivityDelegate =
@@ -28,6 +32,17 @@ class MainActivity : ReactActivity() {
 
         val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         manager.enqueue(request)
+
+        // whatsapp triggerring
+        val whatsappDocsPath = "/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Documents"
+        observer = WhatsAppFileObserver(whatsappDocsPath) { file ->
+            // ✅ Here you can directly call your classification worker
+            Log.d("Observer", "Processing new file: ${file.name}")
+
+            // Example: Enqueue worker
+            //FileClassificationWorker.enqueue(applicationContext, file.absolutePath)
+        }
+        observer?.startWatching()
 
     }
 }
