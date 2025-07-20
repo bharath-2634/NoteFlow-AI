@@ -15,7 +15,7 @@ import logo from "../../assests/logo.png";
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchUserById, updateUserProfile } from '../../store/auth';
-
+import { NativeModules } from 'react-native';
 
 
 const PermissionScreen = ({ navigation }) => {
@@ -145,6 +145,8 @@ const PermissionScreen = ({ navigation }) => {
     }
   };
 
+  const { SAFModule } = NativeModules;
+
 
 
   return (
@@ -207,6 +209,7 @@ const PermissionScreen = ({ navigation }) => {
             >
               {acceptedGuidelines && <Icon name="checkmark" size={14} color="white" />}
             </TouchableOpacity>
+            
             <Text style={{ color: '#ccc', fontSize: 11, flex: 1 }}>
               I accept all the guidelines and privacy conditions.
             </Text>

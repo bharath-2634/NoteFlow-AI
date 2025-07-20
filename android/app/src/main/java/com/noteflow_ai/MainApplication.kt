@@ -14,13 +14,17 @@ import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import java.util.concurrent.TimeUnit
+import com.noteflow_ai.SAFPackage
 
 class MainApplication : Application(), ReactApplication {
 
     override val reactNativeHost: ReactNativeHost =
         object : DefaultReactNativeHost(this) {
-            override fun getPackages(): List<ReactPackage> =
-                PackageList(this).packages
+            override fun getPackages(): List<ReactPackage> {
+                val packages = PackageList(this).packages.toMutableList()
+                packages.add(SAFPackage()) // ✅ Add your custom SAFPackage
+                return packages
+            }
 
             override fun getJSMainModuleName(): String = "index"
             override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
