@@ -12,6 +12,9 @@ import androidx.work.WorkerParameters
 import java.io.File
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 
 
 fun scanForNewFiles(context: Context, directory: File) {
@@ -72,6 +75,8 @@ class SimpleLoggerWorker(
         return pdfList
     }
 
+    val newDocsToClassify = mutableListOf<Uri>()
+
     override fun doWork(): Result {
         val currentTime = System.currentTimeMillis()
         Log.d(TAG, "🕒 Worker started at: $currentTime")
@@ -113,16 +118,12 @@ class SimpleLoggerWorker(
 
                 if (file.isFile && extension in validExtensions) {
                     Log.d(TAG, "✅ SAF Match: ${file.name} | Uri: ${file.uri}")
-                    // You can trigger notifications, indexing, etc. here
+                    newDocsToClassify.add(file.uri)
                 } else {
                     Log.d(TAG, "⛔ Ignored SAF file: ${file.name}")
                 }
             }
         }
-
-
-        
-
 
         // Traverse and log matching files
         directories.forEach { dir ->
@@ -133,7 +134,8 @@ class SimpleLoggerWorker(
 
                     if (file.isFile && extension in validExtensions) {
                         Log.d(TAG, "✅ New/Updated Document: ${file.name} | Path: ${file.absolutePath}")
-                        // Optional: You can trigger a notification or callback here
+                        val fileUri = Uri.fromFile(file) 
+                        newDocsToClassify.add(fileUri)
                     }
                 }
                 // Scan for MediaStore update
@@ -146,7 +148,26 @@ class SimpleLoggerWorker(
         val pdfPaths = getPdfList()
         pdfPaths.forEach {
             Log.d(TAG, "📄 PDF via MediaStore: $it")
+            val file = File(it)
+            if (file.exists()) {
+                val uri = Uri.fromFile(file)
+                newDocsToClassify.add(uri)
+            }
         }
+
+        Log.d(TAG, "🧠 Total new documents to classify: ${newDocsToClassify.size}")
+
+        val uriStrings = newDocsToClassify.map { it.toString() }.toTypedArray()
+        val inputData = Data.Builder()
+            .putStringArray("doc_uris", uriStrings)
+            .build()
+        
+        val classifyWork = OneTimeWorkRequestBuilder<FileClassificationWorker>()
+            .setInputData(inputData)
+            .build()
+        
+        WorkManager.getInstance(applicationContext).enqueue(classifyWork)
+        Log.d(TAG, "📨 FileClassificationWorker enqueued with ${uriStrings.size} URIs")
 
         sharedPreferences.edit().putLong("lastCheckTimestamp", currentTime).apply()
 
