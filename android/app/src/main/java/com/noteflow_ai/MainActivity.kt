@@ -13,8 +13,6 @@ import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 
-
-
 class MainActivity : ReactActivity() {
 
     companion object {
@@ -29,7 +27,7 @@ class MainActivity : ReactActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // SAF: Trigger directory picker for WhatsApp Documents
+        // Always prompt the user to select a directory (you may change this to be user-triggered)
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
             putExtra(
                 DocumentsContract.EXTRA_INITIAL_URI,
@@ -44,26 +42,25 @@ class MainActivity : ReactActivity() {
 
         if (requestCode == REQUEST_CODE_OPEN_DIRECTORY && resultCode == Activity.RESULT_OK) {
             data?.data?.let { treeUri ->
-                // Persist access permissions
+                // Take persistable URI permission
                 contentResolver.takePersistableUriPermission(
                     treeUri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 )
 
-                // Log for debug
-                Log.d("SAF", "Got tree URI: $treeUri")
+                Log.d("SAF", "User selected tree URI: $treeUri")
 
-                // You can now access DocumentFile tree
-                val pickedDir = DocumentFile.fromTreeUri(this, treeUri)
-                pickedDir?.listFiles()?.forEach { file: DocumentFile ->
-                    Log.d("SAF", "File in WhatsApp Documents: ${file.name}")
-                }
-
+                // Store (or update) the selected URI in SharedPreferences every time
                 val prefs = getSharedPreferences("saf_prefs", Context.MODE_PRIVATE)
                 prefs.edit().putString("whatsapp_uri", treeUri.toString()).apply()
+                Log.d("SAF", "Updated SAF path in SharedPreferences")
 
+                // Optional: log files in selected directory for debugging
+                val pickedDir = DocumentFile.fromTreeUri(this, treeUri)
+                pickedDir?.listFiles()?.forEach { file ->
+                    Log.d("SAF", "File found: ${file.name}")
+                }
             }
         }
     }
 }
-

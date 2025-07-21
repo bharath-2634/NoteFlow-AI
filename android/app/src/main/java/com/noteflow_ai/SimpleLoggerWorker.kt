@@ -1,5 +1,8 @@
 package com.noteflow_ai
 
+import android.os.Build
+import android.provider.MediaStore
+import android.webkit.MimeTypeMap
 import android.content.Context
 import android.media.MediaScannerConnection
 import android.os.Environment
@@ -26,6 +29,8 @@ fun scanForNewFiles(context: Context, directory: File) {
     }
 }
 
+
+
 class SimpleLoggerWorker(
     context: Context,
     workerParams: WorkerParameters
@@ -33,6 +38,39 @@ class SimpleLoggerWorker(
 
     private val TAG = "SimpleLoggerWorker"
     private val validExtensions = listOf("pdf", "docx", "pptx", "txt")
+
+    private fun getPdfList(): ArrayList<String> {
+        val pdfList = ArrayList<String>()
+        val collection: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
+        } else {
+            MediaStore.Files.getContentUri("external")
+        }
+        val projection = arrayOf(
+            MediaStore.Files.FileColumns.DISPLAY_NAME,
+            MediaStore.Files.FileColumns.DATA,
+            MediaStore.Files.FileColumns.MIME_TYPE
+        )
+        val sortOrder = MediaStore.Files.FileColumns.DATE_ADDED + " DESC"
+        val selection = MediaStore.Files.FileColumns.MIME_TYPE + " = ?"
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pdf")
+        val selectionArgs = arrayOf(mimeType)
+
+        val cursor = applicationContext.contentResolver.query(
+            collection, projection, selection, selectionArgs, sortOrder
+        )
+
+        cursor?.use {
+            val columnData = it.getColumnIndex(MediaStore.Files.FileColumns.DATA)
+            val columnName = it.getColumnIndex(MediaStore.Files.FileColumns.DISPLAY_NAME)
+            while (it.moveToNext()) {
+                pdfList.add(it.getString(columnData))
+                Log.d(TAG, "getPdf: " + it.getString(columnData))
+            }
+        }
+
+        return pdfList
+    }
 
     override fun doWork(): Result {
         val currentTime = System.currentTimeMillis()
@@ -63,36 +101,27 @@ class SimpleLoggerWorker(
         }
 
         // Add custom SAF directory (persisted Uri path)
+        // Step 3: Read SAF-selected folder (custom SAF URI)
         val customUriPath = safPrefs.getString("customDirPath", null)
         customUriPath?.let {
-            //val customDir = File(it)
-            //if (customDir.exists()) directories.add(customDir)
             val customUri = Uri.parse(it)
             val documentFile = DocumentFile.fromTreeUri(applicationContext, customUri)
+
             documentFile?.listFiles()?.forEach { file ->
-                Log.d("SAF CHECK","SAF ENTRY FILE : ${file.uri}")
                 val name = file.name ?: return@forEach
                 val extension = name.substringAfterLast('.', "").lowercase()
 
                 if (file.isFile && extension in validExtensions) {
-                    Log.d(TAG, "SAF File: ${file.uri}")
+                    Log.d(TAG, "✅ SAF Match: ${file.name} | Uri: ${file.uri}")
+                    // You can trigger notifications, indexing, etc. here
+                } else {
+                    Log.d(TAG, "⛔ Ignored SAF file: ${file.name}")
                 }
             }
         }
 
-        val supportedTypes = listOf(
-            "application/pdf",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation", // PPTX
-            "text/plain"
-        )
 
-        documentFile?.listFiles()?.forEach { file ->
-            val type = file.type ?: return@forEach
-            if (file.isFile && type in supportedTypes) {
-                Log.d(TAG, "SAF MATCH ✅ File: ${file.name} | Type: $type | Uri: ${file.uri}")
-            }
-        }
+        
 
 
         // Traverse and log matching files
@@ -112,6 +141,11 @@ class SimpleLoggerWorker(
             } else {
                 Log.w(TAG, "⚠️ Directory not found or inaccessible: ${dir.absolutePath}")
             }
+        }
+
+        val pdfPaths = getPdfList()
+        pdfPaths.forEach {
+            Log.d(TAG, "📄 PDF via MediaStore: $it")
         }
 
         sharedPreferences.edit().putLong("lastCheckTimestamp", currentTime).apply()
