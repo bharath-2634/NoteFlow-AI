@@ -9,6 +9,6 @@ data class ClassifiedDocument(
     val fileName: String,
     val classification: String?,
     val documentId: String?,     
-    val status: String,         
+    var status: String = "pending",         
     val timestamp: Long          
 )

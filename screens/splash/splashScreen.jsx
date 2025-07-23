@@ -72,9 +72,6 @@ const SplashScreen = ({ navigation }) => {
   checkAuth();
   }, []);
 
-
-
-
   return (
     <View style={styles.container}>
          <Image

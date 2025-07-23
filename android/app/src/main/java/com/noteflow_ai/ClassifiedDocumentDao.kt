@@ -24,6 +24,6 @@ interface ClassifiedDocumentDao {
     @Query("SELECT * FROM classified_documents WHERE status = :status")
     suspend fun getByStatus(status: String): List<ClassifiedDocument>
 
-    @Query("SELECT * FROM classified_documents WHERE uri = :uri")
-    suspend fun getByUri(uri: String): ClassifiedDocument?
+    @Query("SELECT * FROM classified_documents WHERE uri = :uri LIMIT 1")
+    suspend fun getDocumentByUri(uri: String): ClassifiedDocument?
 }

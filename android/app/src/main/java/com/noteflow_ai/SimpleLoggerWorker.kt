@@ -15,6 +15,9 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.CoroutineWorker
+import com.noteflow_ai.AppDatabase
+import com.noteflow_ai.ClassifiedDocumentDao
 
 
 fun scanForNewFiles(context: Context, directory: File) {
@@ -37,12 +40,14 @@ fun scanForNewFiles(context: Context, directory: File) {
 class SimpleLoggerWorker(
     context: Context,
     workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
+
+    val context = applicationContext
 
     private val TAG = "SimpleLoggerWorker"
     private val validExtensions = listOf("pdf", "docx", "pptx", "txt")
 
-    private fun getPdfList(): ArrayList<String> {
+    private fun getPdfList(context: Context): ArrayList<String> {
         val pdfList = ArrayList<String>()
         val collection: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
@@ -77,7 +82,7 @@ class SimpleLoggerWorker(
 
     val newDocsToClassify = mutableListOf<Uri>()
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val currentTime = System.currentTimeMillis()
         Log.d(TAG, "🕒 Worker started at: $currentTime")
 
@@ -145,7 +150,7 @@ class SimpleLoggerWorker(
             }
         }
 
-        val pdfPaths = getPdfList()
+        val pdfPaths = getPdfList(context)
         pdfPaths.forEach {
             Log.d(TAG, "📄 PDF via MediaStore: $it")
             val file = File(it)
@@ -157,17 +162,26 @@ class SimpleLoggerWorker(
 
         Log.d(TAG, "🧠 Total new documents to classify: ${newDocsToClassify.size}")
 
-        val uriStrings = newDocsToClassify.map { it.toString() }.toTypedArray()
-        val inputData = Data.Builder()
-            .putStringArray("doc_uris", uriStrings)
-            .build()
-        
-        val classifyWork = OneTimeWorkRequestBuilder<FileClassificationWorker>()
-            .setInputData(inputData)
-            .build()
-        
-        WorkManager.getInstance(applicationContext).enqueue(classifyWork)
-        Log.d(TAG, "📨 FileClassificationWorker enqueued with ${uriStrings.size} URIs")
+        val db = AppDatabase.getInstance(applicationContext)
+        val dao = db.documentDao()
+
+        for (uri in newDocsToClassify) {
+            val fileName = DocumentFile.fromSingleUri(applicationContext, uri)?.name ?: "unknown.pdf"
+            val uriString = uri.toString()
+
+            val existing = dao.getDocumentByUri(uriString)
+            if (existing == null) {
+                val document = ClassifiedDocument(
+                    uri = uriString,
+                    fileName = fileName,
+                    classification = null,
+                    documentId = null,
+                    status = "pending",
+                    timestamp = System.currentTimeMillis()
+                )
+                dao.insert(document)
+            }
+        }
 
         sharedPreferences.edit().putLong("lastCheckTimestamp", currentTime).apply()
 

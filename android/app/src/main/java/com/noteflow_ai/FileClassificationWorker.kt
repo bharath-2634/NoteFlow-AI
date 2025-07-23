@@ -92,8 +92,6 @@ class FileClassificationWorker(appContext: Context, workerParams: WorkerParamete
             return@withContext Result.failure()
         }
 
-        // 🧠 Call your API with file bytes
-        // return@withContext classifyDocument(fileBytes, fileName)
         return@withContext classifyDocument(fileUri, fileName, fileBytes, dao)
 
     }
@@ -213,9 +211,4 @@ class FileClassificationWorker(appContext: Context, workerParams: WorkerParamete
         return fileName
     }
 
-    // TODO: Implement robust file moving logic using SAF DocumentFile API
-    // This is a complex task that needs to be done carefully to handle
-    // permissions and different storage providers.
-    // You'll need the URI of the target "NoteFlow AI Classified" folder (user-selected via SAF)
-    // and then use DocumentFile.fromTreeUri() to navigate and create subfolders/move files.
 }

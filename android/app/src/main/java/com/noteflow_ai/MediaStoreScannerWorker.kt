@@ -27,7 +27,7 @@ class MediaStoreScannerWorker(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "⚡ MediaStoreScannerWorker started execution.")
+            Log.d(TAG, "MediaStoreScannerWorker started execution.")
 
             val prefs = applicationContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             val scannedUris = prefs.getStringSet(PREF_KEY, emptySet())?.toMutableSet() ?: mutableSetOf()
