@@ -21,9 +21,8 @@ const LoginScreen = ({ navigation }) => {
 
   const [showPassword, setShowPassword] = useState(false);
 
-
-
   const handleLogin = async () => {
+    
     if (!email || !password) {
       Alert.alert("Error", "Please Enter valid details");
       return;
