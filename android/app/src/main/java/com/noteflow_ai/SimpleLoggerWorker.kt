@@ -35,8 +35,6 @@ fun scanForNewFiles(context: Context, directory: File) {
     }
 }
 
-
-
 class SimpleLoggerWorker(
     context: Context,
     workerParams: WorkerParameters
@@ -83,6 +81,8 @@ class SimpleLoggerWorker(
     val newDocsToClassify = mutableListOf<Uri>()
 
     override suspend fun doWork(): Result {
+        
+
         val currentTime = System.currentTimeMillis()
         Log.d(TAG, "🕒 Worker started at: $currentTime")
 
@@ -161,22 +161,27 @@ class SimpleLoggerWorker(
         }
 
         Log.d(TAG, "🧠 Total new documents to classify: ${newDocsToClassify.size}")
-Log.d(TAG,"Before into RB")
+
         val db = AppDatabase.getInstance(applicationContext)
         val dao = db.documentDao()
-        Log.d(TAG,"After into RB")
+
+        val sharedPrefs = applicationContext.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val currentUserId = sharedPrefs.getString("current_user_id", null)
+
+        Log.d(TAG,"CurrentUserId ${currentUserId}")
+      
         for (uri in newDocsToClassify) {
-            Log.d(TAG,"Entering into RB")
+
             val fileName = DocumentFile.fromSingleUri(applicationContext, uri)?.name ?: "unknown.pdf"
             val uriString = uri.toString()
-            Log.d(TAG,"Entering into RB next step")
+            
             val existing = dao.getDocumentByUri(uriString)
-            if(existing!=null) {
-                Log.d(TAG,"Existing File ${existing.status}")
-            }
+            //if(existing!=null) {
+                //Log.d(TAG,"Existing File ${existing.status}")
+            //}
             
             if (existing == null || existing.status == "pending" || existing.status == "failed") {
-                Log.d(TAG,"Entering into RB new file detection")
+                
                 if(existing == null) {
                     val document = ClassifiedDocument(
                         uri = uriString,
@@ -189,9 +194,10 @@ Log.d(TAG,"Before into RB")
                     dao.insert(document)
                 }
                 
-                Log.d(TAG,"starting the WorkManager")
+                
                 val inputData = Data.Builder()
-                    .putString("uri", uriString) // send the file URI
+                    .putString("uri", uriString)
+                    .putString("user_id", currentUserId)
                     .build()
 
                 val workRequest = OneTimeWorkRequestBuilder<FileClassificationWorker>()

@@ -22,11 +22,21 @@ class FileClassificationWorker(
 
     private val TAG = "ClassificationWorker"
     
-    private val API_BASE_URL = "https://noteflow-ai-classification-model.onrender.com"
-    private val USER_ID = "6863b27fdc31892b932ab086"
+    private val API_BASE_URL = "https://noteflow-backend-993827039568.us-central1.run.app/classify"
+    // private val USER_ID = "6863b27fdc31892b932ab086"
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-        
+
+        val userId = inputData.getString("user_id")
+
+        Log.d(TAG,"UserId from ${userId}")
+        if (userId.isNullOrBlank()) {
+            Log.e(TAG, "❌ User ID not provided in InputData. Cannot proceed with classification.")
+            // Return failure since the user ID is a required piece of data
+            return@withContext Result.failure()
+        }
+
+        Log.d(TAG,"User Id from FileClassificationWorker ${userId}" )
         val db = AppDatabase.getInstance(applicationContext)
         val dao = db.documentDao()
         
@@ -45,7 +55,7 @@ class FileClassificationWorker(
                 continue
             }
 
-            val result = classifyAndUpdate(doc, fileBytes, dao)
+            val result = classifyAndUpdate(doc, fileBytes, dao, userId)
             Log.d(TAG,"Result of Classification: ${result}")
             if (!result) {
                 dao.update(doc.copy(status = "failed"))
@@ -58,7 +68,8 @@ class FileClassificationWorker(
     private suspend fun classifyAndUpdate(
         doc: ClassifiedDocument,
         fileBytes: ByteArray,
-        dao: ClassifiedDocumentDao
+        dao: ClassifiedDocumentDao,
+        userId: String
     ): Boolean {
         Log.d(TAG,"Entering into request body")
         val client = OkHttpClient.Builder()
@@ -68,7 +79,7 @@ class FileClassificationWorker(
             .build()
         
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
-            .addFormDataPart("user_id", USER_ID)
+            .addFormDataPart("user_id", userId)
             .addFormDataPart("file", doc.fileName, fileBytes.toRequestBody("application/octet-stream".toMediaTypeOrNull()))
             .build()
         Log.d(TAG,"Request Body ${requestBody}")

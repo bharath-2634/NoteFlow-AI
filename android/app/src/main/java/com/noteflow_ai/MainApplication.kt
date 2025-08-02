@@ -1,4 +1,3 @@
-// MainApplication.kt
 package com.noteflow_ai
 
 import android.app.Application
@@ -16,13 +15,16 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import java.util.concurrent.TimeUnit
 import com.noteflow_ai.SAFPackage
 
+import com.noteflow_ai.MyAppPackage
+
 class MainApplication : Application(), ReactApplication {
 
     override val reactNativeHost: ReactNativeHost =
         object : DefaultReactNativeHost(this) {
             override fun getPackages(): List<ReactPackage> {
                 val packages = PackageList(this).packages.toMutableList()
-                packages.add(SAFPackage()) // ✅ Add your custom SAFPackage
+                packages.add(SAFPackage()) 
+                packages.add(MyAppPackage())
                 return packages
             }
 
@@ -42,7 +44,7 @@ class MainApplication : Application(), ReactApplication {
         Log.d("MainApplication", "✅ App onCreate: Scheduling Periodic Logger")
 
         val periodicLogger = PeriodicWorkRequestBuilder<SimpleLoggerWorker>(
-            3, TimeUnit.MINUTES
+            15, TimeUnit.MINUTES
         ).addTag("LoggerTask").build()
 
         WorkManager.getInstance(this).enqueue(periodicLogger)

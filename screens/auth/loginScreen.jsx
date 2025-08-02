@@ -9,6 +9,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import { ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import GoogleLoginButton from '../common/googleBtn';
 
+import { NativeModules } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
@@ -22,7 +23,7 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-    
+
     if (!email || !password) {
       Alert.alert("Error", "Please Enter valid details");
       return;
@@ -31,10 +32,14 @@ const LoginScreen = ({ navigation }) => {
     const resultAction = await dispatch(loginUser({ email, password }));
 
     if (loginUser.fulfilled.match(resultAction)) {
-      const token = resultAction.payload.token;
+      const { token, user } = resultAction.payload;
+      const userId = user?.id;
 
-      if (token) {
-        await AsyncStorage.setItem("token", token); // ✅ Store token here
+      if (token && userId) {
+        await AsyncStorage.setItem("token", token); 
+        await AsyncStorage.setItem("userId", userId);
+        NativeModules.NativeStorageModule.saveUserId(userId);
+        
         Alert.alert("Success", "Login successful");
         navigation.replace("Home");
       } else {
@@ -132,16 +137,11 @@ const LoginScreen = ({ navigation }) => {
             </Text>
           </View>
 
-
-
         </View>
       </ScrollView>
     </TouchableWithoutFeedback>
   </KeyboardAvoidingView>
 
-
-      
-    // </View>
   );
 };
 
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     borderRadius : 10
   },
   login_glassCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)', // transparent white
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
@@ -265,17 +265,14 @@ const styles = StyleSheet.create({
     textAlign:'center'
   },
   link_text : {
-
     color:'#7F7F7F',
     fontFamily :'bold',
     fontSize:15,
   },
   linkText : {
-
     color:'#fff',
     fontFamily :'bold',
     fontSize:15,
-    // marginBottom:8
   }
 
 });

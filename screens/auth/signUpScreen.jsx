@@ -8,6 +8,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import { ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import GoogleLoginButton from '../common/googleBtn';
+import { NativeModules } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -30,12 +31,15 @@ const SignUpScreen = ({ navigation }) => {
     }
     console.log("Entered");
     const resultAction = await dispatch(registerUser({ userName, email, password }));
-    // Alert.alert("Failed", resultAction.payload?.message);
     if (registerUser.fulfilled.match(resultAction)) {
-       const token = resultAction.payload.token;
+       const { token, user } = resultAction.payload;
+       console.log("User",user);
+       const userId = user?.id;
 
-       if(token) {
+       if(token && userId) {
         await AsyncStorage.setItem("token", token);
+        await AsyncStorage.setItem("userId", userId);
+        NativeModules.NativeStorageModule.saveUserId(userId);
         Alert.alert("Success", "Login successful");
         navigation.replace("Home");
        }else {
