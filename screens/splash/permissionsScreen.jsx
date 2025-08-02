@@ -146,6 +146,7 @@ const PermissionScreen = ({ navigation }) => {
   };
 
   const { SAFModule } = NativeModules;
+  const [showBottomPopup, setShowBottomPopup] = useState(true);
 
 
 
@@ -233,6 +234,18 @@ const PermissionScreen = ({ navigation }) => {
         <Text style={{ color: 'white', fontSize: 16 }}>Continue with NoteFlow AI</Text>
       </TouchableOpacity>
 
+      {showBottomPopup && (
+        <View style={styles.bottomPopup}>
+          <Text style={styles.popupTitle}>NoteFlow AI.</Text>
+          <Text style={styles.popupText}>
+            Please enable the “All File Access” Permission on your device for NoteFlow AI to unlock all features
+          </Text>
+          <TouchableOpacity style={styles.popupButton} onPress={() => setShowBottomPopup(false)}>
+            <Text style={styles.popupButtonText}>Okay got it !</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
     </View>
   );
 };
@@ -295,6 +308,48 @@ const styles = StyleSheet.create({
     marginVertical: 12, 
     marginLeft:25 
   },
+  bottomPopup: {
+    position: 'absolute',
+    bottom: 20,
+    left: 10,
+    right: 20,
+    width:340,
+    backgroundColor: '#151515ff',
+    borderRadius: 12,
+    padding: 30,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  popupTitle: {
+    fontSize: 20,
+    fontFamily:'Poppins',
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  popupText: {
+    fontSize: 14,
+    color: '#ccc',
+    textAlign: 'center',
+    marginBottom: 19,
+  },
+  popupButton: {
+    backgroundColor: '#2674f1ff',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+  },
+  popupButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
  
 
 });
