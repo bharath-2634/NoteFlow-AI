@@ -11,7 +11,7 @@ import HomeScreen from './screens/home/homeScreen.jsx';
 import SignUpScreen from './screens/auth/signUpScreen.jsx';
 import PermissionsScreen from './screens/splash/permissionsScreen.jsx';
 import { setupGoogleSignin } from './utils/googleBtn.js';
-
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,7 +19,11 @@ const App = () => {
 
 
   useEffect(()=>{
-    setupGoogleSignin();
+    GoogleSignin.configure({
+      webClientId: '997407954891-7l57v131emrunti9rsifo3ksvfqd9laf.apps.googleusercontent.com',
+      offlineAccess: true,
+    })
+    console.log("GoogleSignin:", GoogleSignin);
   },[]);
 
   return (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser, registerUser } from '../../store/auth/index';
+import { loginUser, registerUser, googleLogin } from '../../store/auth/index';
 import logo from '../../assests/logo.png';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -9,7 +9,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import { ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import GoogleLoginButton from '../common/googleBtn';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { NativeModules } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -50,6 +50,32 @@ const LoginScreen = ({ navigation }) => {
       Alert.alert("Failed", resultAction.payload?.message || "Login failed");
     }
   };
+
+  const handleGoogleSignIn = async () => {
+      try {
+
+        console.log("Clicked Google Login!");
+        await GoogleSignin.hasPlayServices();
+        console.log("after await singIn");
+        // console.log("Got the userInfo",GoogleSignin.signIn());
+
+        const userInfo = await GoogleSignin.signIn();
+        console.log("userInfo Id Token",userInfo);
+        const idToken = userInfo.idToken;
+        console.log("got the IdToken");
+        const response = await dispatch(googleLogin(idToken));
+        console.log("got response! ",response);
+        if (response?.payload?.success) {
+          Alert.alert('Login Success');
+        } else {
+          Alert.alert('Login Failed');
+        }
+  
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Google Sign-In error');
+      }
+    };
 
 
   return (
@@ -127,7 +153,11 @@ const LoginScreen = ({ navigation }) => {
                 {isLoading ? (
                     <ActivityIndicator size="large" color="#0000ff" />
                 ) : (
-                    <GoogleLoginButton/>
+                    <TouchableOpacity style={styles.button} onPress={handleGoogleSignIn}>
+                        <AntDesign name="google" size={24} color="#7F7F7F" style={styles.input_icon} />
+                        <Text style={styles.text}>Sign in with Google</Text>
+                    </TouchableOpacity>
+                    
                 )}
 
             </View>
@@ -284,6 +314,24 @@ const styles = StyleSheet.create({
     padding: 25,
     backgroundColor: '#1F1F1F',
     marginTop:-20
-  }
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1D1D1D',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    elevation: 3,
+    marginTop: 16,
+  },
+  input_icon: {
+    marginRight:20,
+    marginLeft:10
+  },
+  text: {
+    fontSize: 16,
+    color: '#ccc',
+  },
 
 });

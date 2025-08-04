@@ -147,7 +147,7 @@ const googleAuth = async (req, res) => {
     try {
         const { token } = req.body;
         console.log("token",token);
-
+        
         if (!token) {
             return res.status(400).json({ success: false, message: "Token is required" });
         }
@@ -160,15 +160,11 @@ const googleAuth = async (req, res) => {
         console.log("ticket",ticket);
 
         const payload = ticket.getPayload();
-        // console.log("Google Payload:", payload);
-
-        // Check if the user exists
+ 
         let user = await User.findOne({ email: payload.email });
-        // console.log("user",user);
-        if (!user) {
-            // If the user doesn't exist, create a new one
-            const MCID = `MC-${Math.floor(100000 + Math.random() * 900000)}`;
 
+        if (!user) {
+           
            user = new User({
                 userName: payload.family_name,
                 email : payload.email,

@@ -48,9 +48,9 @@ export const googleLogin = createAsyncThunk(
     console.log("Slice Enter", token);
     
     const response = await axios.post(
-      `${BASE_URL}/auth/google`,  // ✅ Corrected endpoint
-      { token }, // Send token inside request body
-      { withCredentials: true }
+      `${BASE_URL}/auth/google`,
+      { token },
+      { withCredentials: true}
     );
 
     console.log("slice", response);

@@ -13,7 +13,7 @@ const GoogleLoginButton = () => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       const idToken = userInfo.idToken;
-
+      console.log("Clicked Google Login!");
       const response = await dispatch(googleLogin(idToken));
       if (response?.payload?.success) {
         Alert.alert('Login Success');
@@ -28,10 +28,10 @@ const GoogleLoginButton = () => {
   };
 
   return (
-    <TouchableOpacity style={styles.button} onPress={handleGoogleSignIn}>
-      <AntDesign name="google" size={24} color="#7F7F7F" style={styles.input_icon} />
-      <Text style={styles.text}>Sign in with Google</Text>
-    </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleGoogleSignIn}>
+        
+      </TouchableOpacity>
+    
   );
 };
 
