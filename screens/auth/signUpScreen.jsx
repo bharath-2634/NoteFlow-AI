@@ -10,7 +10,7 @@ import { ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutF
 import GoogleLoginButton from '../common/googleBtn';
 import { NativeModules } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SignUpScreen = ({ navigation }) => {
 
@@ -53,111 +53,110 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={"height"}
-    >
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.container}>
-      
-          <View style={styles.header}>
-              <Image
-                  style={styles.logo}
-                  source={logo}
-              />
-              <Text style={styles.primary_text}>NoteFlow AI.</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#1F1F1F' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={"height"}
+      >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.container}>
+        
+            <View style={styles.header}>
+                <Image
+                    style={styles.logo}
+                    source={logo}
+                />
+                <Text style={styles.primary_text}>NoteFlow AI.</Text>
 
-              <Text style={styles.signUp_primary_text}>Create your Account !</Text>
-              <Text style={styles.signUp_secondary_text}>Register to access NoteFlow AI.</Text>
-          </View>
-
-          <View style={styles.glassCard}>
-            <View style={styles.box_container}>
-              <Icon name="user" size={24} color="#7F7F7F" style={styles.input_icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="User Name"
-                placeholderTextColor="#7F7F7F"
-                value={userName}
-                onChangeText={setUserName}
-              />
-            </View>
-              
-            <View style={styles.box_container}>
-              <AntDesign name="mail" size={24} color="#7F7F7F" style={styles.input_icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="#7F7F7F"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-              />
+                <Text style={styles.signUp_primary_text}>Create your Account !</Text>
+                <Text style={styles.signUp_secondary_text}>Register to access NoteFlow AI.</Text>
             </View>
 
-            <View style={styles.box_container}>
-              <AntDesign name="lock" size={24} color="#7F7F7F" style={styles.input_icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#7F7F7F"
-                secureTextEntry={!showPassword}
-                value={password}
-                onChangeText={setPassword}
-              />
-
-              <Feather
-                name={showPassword ? "eye" : "eye-off"}
-                size={20}
-                color="#7F7F7F"
-                style={styles.eye_icon}
-                onPress={() => setShowPassword(prev => !prev)}
-              />
-            </View>
-
-              {isLoading ? (
-                  <ActivityIndicator size="large" color="#0000ff" />
-              ) : (
-                  <TouchableOpacity style={styles.signUp_btn} onPress={handleRegister}>
-                    <Text style={styles.btn_text}>SIGN UP</Text>
-                  </TouchableOpacity>
-              )}
-              <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
-                <View style={{flex: 1, height: 1, backgroundColor: '#7F7f7F'}} />
-                <View>
-                  <Text style={{width: 50, textAlign: 'center', fontSize:20, color: '#fff'}}>or</Text>
-                </View>
-                <View style={{flex: 1, height: 1, backgroundColor: '#7F7f7F'}} />
+            <View style={styles.glassCard}>
+              <View style={styles.box_container}>
+                <Icon name="user" size={24} color="#7F7F7F" style={styles.input_icon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="User Name"
+                  placeholderTextColor="#7F7F7F"
+                  value={userName}
+                  onChangeText={setUserName}
+                />
+              </View>
+                
+              <View style={styles.box_container}>
+                <AntDesign name="mail" size={24} color="#7F7F7F" style={styles.input_icon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  placeholderTextColor="#7F7F7F"
+                  keyboardType="email-address"
+                  value={email}
+                  onChangeText={setEmail}
+                />
               </View>
 
-              {isLoading ? (
-                  <ActivityIndicator size="large" color="#0000ff" />
-              ) : (
-                  <GoogleLoginButton/>
-              )}
+              <View style={styles.box_container}>
+                <AntDesign name="lock" size={24} color="#7F7F7F" style={styles.input_icon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  placeholderTextColor="#7F7F7F"
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={setPassword}
+                />
 
-          </View>
-          
-          <View style={styles.end_view}>
-            <Text style={styles.link_text}>
-              Already have an account?{' '}
-              <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
-                SignIn
+                <Feather
+                  name={showPassword ? "eye" : "eye-off"}
+                  size={20}
+                  color="#7F7F7F"
+                  style={styles.eye_icon}
+                  onPress={() => setShowPassword(prev => !prev)}
+                />
+              </View>
+
+                {isLoading ? (
+                    <ActivityIndicator size="large" color="#0000ff" />
+                ) : (
+                    <TouchableOpacity style={styles.signUp_btn} onPress={handleRegister}>
+                      <Text style={styles.btn_text}>SIGN UP</Text>
+                    </TouchableOpacity>
+                )}
+                <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
+                  <View style={{flex: 1, height: 1, backgroundColor: '#7F7f7F'}} />
+                  <View>
+                    <Text style={{width: 50, textAlign: 'center', fontSize:20, color: '#fff'}}>or</Text>
+                  </View>
+                  <View style={{flex: 1, height: 1, backgroundColor: '#7F7f7F'}} />
+                </View>
+
+                {isLoading ? (
+                    <ActivityIndicator size="large" color="#0000ff" />
+                ) : (
+                    <GoogleLoginButton/>
+                )}
+
+            </View>
+            
+            <View style={styles.end_view}>
+              <Text style={styles.link_text}>
+                Already have an account?{' '}
+                <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
+                  SignIn
+                </Text>
               </Text>
-            </Text>
+            </View>
+
+
+
           </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
 
-
-
-        </View>
-      </ScrollView>
-    </TouchableWithoutFeedback>
-  </KeyboardAvoidingView>
-
-
-      
-    // </View>
   );
 };
 
@@ -165,9 +164,9 @@ export default SignUpScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     flexDirection : 'column',
-    padding: 30,
+    // padding: 30,
     justifyContent: 'center',
     backgroundColor : '#1F1F1F'
   },
@@ -292,6 +291,12 @@ const styles = StyleSheet.create({
     fontFamily :'bold',
     fontSize:15,
     // marginBottom:8
+  },
+  scrollContainer : {
+    flexGrow: 1,
+    padding: 25,
+    backgroundColor: '#1F1F1F',
+    marginTop:-10
   }
 
 });

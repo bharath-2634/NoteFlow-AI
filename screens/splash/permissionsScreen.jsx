@@ -256,9 +256,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-start', // Changed from 'center'
+    justifyContent: 'flex-start',
     backgroundColor: '#1F1F1F',
-    paddingTop: 40, // To push everything slightly down
+    paddingTop: 40, 
   },
   permissions_header: {
     alignItems: 'center',
