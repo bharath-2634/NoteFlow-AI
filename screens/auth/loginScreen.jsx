@@ -71,9 +71,9 @@ const LoginScreen = ({ navigation }) => {
           Alert.alert('Login Failed');
         }
   
-      } catch (error) {
-        console.error(error);
-        Alert.alert('Google Sign-In error');
+      } catch (Error) {
+        console.error(Error);
+        Alert.alert(`Google Sign-In error ${Error}`);
       }
     };
 

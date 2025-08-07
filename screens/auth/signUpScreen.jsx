@@ -11,6 +11,7 @@ import GoogleLoginButton from '../common/googleBtn';
 import { NativeModules } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const SignUpScreen = ({ navigation }) => {
 
@@ -49,6 +50,31 @@ const SignUpScreen = ({ navigation }) => {
       // navigation.replace("Home");
     } else {
       Alert.alert("Failed", resultAction.payload?.message);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      console.log("Clicked Google Login!");
+      await GoogleSignin.hasPlayServices();
+      console.log("after await singIn");
+      // console.log("Got the userInfo",GoogleSignin.signIn());
+
+      const userInfo = await GoogleSignin.signIn();
+      console.log("userInfo Id Token",userInfo);
+      const idToken = userInfo.idToken;
+      console.log("got the IdToken");
+      const response = await dispatch(googleLogin(idToken));
+      console.log("got response! ",response);
+      if (response?.payload?.success) {
+        Alert.alert('Login Success');
+      } else {
+        Alert.alert('Login Failed');
+      }
+
+    } catch (Error) {
+      console.error(Error);
+      Alert.alert(`Google Sign-In error ${Error}`);
     }
   };
 
@@ -135,7 +161,11 @@ const SignUpScreen = ({ navigation }) => {
                 {isLoading ? (
                     <ActivityIndicator size="large" color="#0000ff" />
                 ) : (
-                    <GoogleLoginButton/>
+                    <TouchableOpacity style={styles.button} onPress={handleGoogleSignIn}>
+                        <AntDesign name="google" size={24} color="#7F7F7F" style={styles.input_icon} />
+                        <Text style={styles.text}>Sign in with Google</Text>
+                    </TouchableOpacity>
+                    
                 )}
 
             </View>
@@ -297,6 +327,24 @@ const styles = StyleSheet.create({
     padding: 25,
     backgroundColor: '#1F1F1F',
     marginTop:-10
-  }
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1D1D1D',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    elevation: 3,
+    marginTop: 16,
+  },
+  input_icon: {
+    marginRight:20,
+    marginLeft:10
+  },
+  text: {
+    fontSize: 16,
+    color: '#ccc',
+  },
 
 });

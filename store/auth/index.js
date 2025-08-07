@@ -7,7 +7,7 @@ const initialState = {
     isLoading : false,
     user:null
 }
-// 10.1.4.63
+// 192.168.1.3 192.168.1.3
 
 export const registerUser = createAsyncThunk(
   "/auth/register",
@@ -48,7 +48,7 @@ export const googleLogin = createAsyncThunk(
     console.log("Slice Enter", token);
     
     const response = await axios.post(
-      `${BASE_URL}/auth/google`,
+      `http://192.168.1.3:5000/api/auth/google`,
       { token },
       { withCredentials: true}
     );
@@ -89,7 +89,7 @@ export const checkAuth = createAsyncThunk(
 
   async () => {
     const response = await axios.get(
-      `${BASE_URL}/auth/check-auth`,
+      `http://192.168.1.3:5000/api/auth/check-auth`,
       {
         withCredentials: true,
         headers: {

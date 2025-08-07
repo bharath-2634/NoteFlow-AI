@@ -20,9 +20,11 @@ const App = () => {
 
   useEffect(()=>{
     GoogleSignin.configure({
-      webClientId: '997407954891-7l57v131emrunti9rsifo3ksvfqd9laf.apps.googleusercontent.com',
-      offlineAccess: true,
-    })
+      scopes: ['https://www.googleapis.com/auth/userinfo.email'],
+      webClientId: '514559115604-nu1efes2drbinuojs9pmpme6jlbov0vc.apps.googleusercontent.com', 
+      offlineAccess: false,
+      androidClientId: '514559115604-vgfpk5kfphed5bft92eng5f89a19o68b.apps.googleusercontent.com',
+    });
     console.log("GoogleSignin:", GoogleSignin);
   },[]);
 

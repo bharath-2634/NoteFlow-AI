@@ -154,7 +154,7 @@ const googleAuth = async (req, res) => {
 
         const ticket = await client.verifyIdToken({
             idToken: token,
-            audience: "997407954891-15midcdg8c555ds9hrbd3emjbtam5pv5.apps.googleusercontent.com",
+            audience: "408743586423-4v9jfflhiofo8pk7j9gnfrmqn5onaase.apps.googleusercontent.com",
         });
 
         console.log("ticket",ticket);
