@@ -13,6 +13,7 @@ import PermissionsScreen from './screens/splash/permissionsScreen.jsx';
 import { setupGoogleSignin } from './utils/googleBtn.js';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
+
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -20,7 +21,7 @@ const App = () => {
 
   useEffect(()=>{
     GoogleSignin.configure({
-      scopes: ['https://www.googleapis.com/auth/userinfo.email'],
+      scopes: ['email'],
       webClientId: '514559115604-nu1efes2drbinuojs9pmpme6jlbov0vc.apps.googleusercontent.com', 
       offlineAccess: false,
       androidClientId: '514559115604-vgfpk5kfphed5bft92eng5f89a19o68b.apps.googleusercontent.com',

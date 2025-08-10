@@ -107,7 +107,7 @@ const PermissionScreen = ({ navigation }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem('token');
-      
+ 
       setTimeout(() => {
         if (token) {
            const decoded = decodeJWT(token);

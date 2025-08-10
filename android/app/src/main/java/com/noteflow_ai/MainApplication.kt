@@ -14,7 +14,7 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import java.util.concurrent.TimeUnit
 import com.noteflow_ai.SAFPackage
-
+import com.noteflow_ai.ScanPackage
 import com.noteflow_ai.MyAppPackage
 
 class MainApplication : Application(), ReactApplication {
@@ -25,6 +25,7 @@ class MainApplication : Application(), ReactApplication {
                 val packages = PackageList(this).packages.toMutableList()
                 packages.add(SAFPackage()) 
                 packages.add(MyAppPackage())
+                packages.add(ScanPackage())
                 return packages
             }
 

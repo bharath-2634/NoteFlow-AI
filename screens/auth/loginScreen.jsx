@@ -20,13 +20,13 @@ const LoginScreen = ({ navigation }) => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const [error,setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
 
     if (!email || !password) {
-      Alert.alert("Error", "Please Enter valid details");
+      setError('Please Enter Valid Credentials !')
       return;
     }
 
@@ -44,10 +44,11 @@ const LoginScreen = ({ navigation }) => {
         Alert.alert("Success", "Login successful");
         navigation.replace("Home");
       } else {
-        Alert.alert("Error", "Token missing in response");
+        // Alert.alert("Error", "Token missing in response");
+        setError('Sorry ! Try again later');
       }
     } else {
-      Alert.alert("Failed", resultAction.payload?.message || "Login failed");
+      setError('Invalid Credentials! Try again ')
     }
   };
 
@@ -57,10 +58,10 @@ const LoginScreen = ({ navigation }) => {
         console.log("Clicked Google Login!");
         await GoogleSignin.hasPlayServices();
         console.log("after await singIn");
-        // console.log("Got the userInfo",GoogleSignin.signIn());
 
+        // console.log("userInfo Id Token",await GoogleSignin.signIn());
         const userInfo = await GoogleSignin.signIn();
-        console.log("userInfo Id Token",userInfo);
+        
         const idToken = userInfo.idToken;
         console.log("got the IdToken");
         const response = await dispatch(googleLogin(idToken));
@@ -134,9 +135,10 @@ const LoginScreen = ({ navigation }) => {
                   onPress={() => setShowPassword(prev => !prev)}
                 />
               </View>
+              { error!='' ? <Text style={styles.error_txt}>{error!='' ? error : ""}</Text>: ''}
 
                 {isLoading ? (
-                    <ActivityIndicator size="large" color="#0000ff" />
+                    <ActivityIndicator size="large" color="#7F7F7F" />
                 ) : (
                     <TouchableOpacity style={styles.signUp_btn} onPress={handleLogin}>
                       <Text style={styles.btn_text}>LOGIN</Text>
@@ -150,15 +152,13 @@ const LoginScreen = ({ navigation }) => {
                   <View style={{flex: 1, height: 1, backgroundColor: '#7F7f7F'}} />
                 </View>
 
-                {isLoading ? (
-                    <ActivityIndicator size="large" color="#0000ff" />
-                ) : (
-                    <TouchableOpacity style={styles.button} onPress={handleGoogleSignIn}>
-                        <AntDesign name="google" size={24} color="#7F7F7F" style={styles.input_icon} />
-                        <Text style={styles.text}>Sign in with Google</Text>
-                    </TouchableOpacity>
+                
+                <TouchableOpacity style={styles.button} onPress={handleGoogleSignIn}>
+                    <AntDesign name="google" size={24} color="#7F7F7F" style={styles.input_icon} />
+                    <Text style={styles.text}>Sign in with Google</Text>
+                </TouchableOpacity>
                     
-                )}
+                
 
             </View>
             
@@ -333,5 +333,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#ccc',
   },
+  error_txt : {
+    textAlign:'center',
+    color : '#e25f5fff',
 
+  }
 });

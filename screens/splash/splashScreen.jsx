@@ -4,10 +4,9 @@ import logo from '../../assests/logo.png';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchUserById } from '../../store/auth';
+import { NativeModules } from 'react-native';
 
-// import jwtDecode from 'jwt-decode';
-// import { jwtDecode } from 'jwt-decode';
-// const jwtDecode = require('jwt-decode');
+const { ScanModule } = NativeModules;
 
 const SplashScreen = ({ navigation }) => {
 
@@ -32,6 +31,21 @@ const SplashScreen = ({ navigation }) => {
     }
   };
 
+  const [scanFiles, setScanFiles] = useState(false);
+  
+  useEffect(() => {
+    const startScan = async () => {
+      try {
+        await ScanModule.runOneTimeScan();
+        navigation.replace("Home");
+      } catch (error) {
+        navigation.replace("Home");
+      }
+    };
+
+    startScan();
+  }, [scanFiles]);
+
  useEffect(() => {
   const checkAuth = async () => {
     const token = await AsyncStorage.getItem('token');
@@ -55,8 +69,10 @@ const SplashScreen = ({ navigation }) => {
         setUser(fetchedUser);
         setTimeout(() => {
           if (fetchedUser.permissions) {
+            setScanFiles(true);
             navigation.replace('Home');
           } else {
+            setScanFiles(false);
             navigation.replace('Permissions');
           }
         }, 3000);

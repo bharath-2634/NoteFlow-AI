@@ -23,11 +23,11 @@ const SignUpScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const [showPassword, setShowPassword] = useState(false);
-
+  const [error,setError] = useState('');
 
   const handleRegister = async () => {
     if (!userName || !email || !password) {
-      Alert.alert("Error", "All fields are required");
+      setError("Please Enter Valid Credentials");
       return;
     }
     console.log("Entered");
@@ -41,15 +41,14 @@ const SignUpScreen = ({ navigation }) => {
         await AsyncStorage.setItem("token", token);
         await AsyncStorage.setItem("userId", userId);
         NativeModules.NativeStorageModule.saveUserId(userId);
-        Alert.alert("Success", "Login successful");
         navigation.replace("Home");
        }else {
-        Alert.alert("Error", "Token missing in response");
+          setError("Sorry ! Try again Later");
+          // Token Missing Error
        }
-      // Alert.alert("Success", "Registration successful");
-      // navigation.replace("Home");
+
     } else {
-      Alert.alert("Failed", resultAction.payload?.message);
+      setError("Invalid Credentials ! Try Again");
     }
   };
 
@@ -141,10 +140,12 @@ const SignUpScreen = ({ navigation }) => {
                   style={styles.eye_icon}
                   onPress={() => setShowPassword(prev => !prev)}
                 />
+                
               </View>
-
+                
+                { error!='' ? <Text style={styles.error_txt}>{error!='' ? error : ""}</Text>: ''}
                 {isLoading ? (
-                    <ActivityIndicator size="large" color="#0000ff" />
+                    <ActivityIndicator size="large" color="#7F7F7F" />
                 ) : (
                     <TouchableOpacity style={styles.signUp_btn} onPress={handleRegister}>
                       <Text style={styles.btn_text}>SIGN UP</Text>
@@ -158,16 +159,12 @@ const SignUpScreen = ({ navigation }) => {
                   <View style={{flex: 1, height: 1, backgroundColor: '#7F7f7F'}} />
                 </View>
 
-                {isLoading ? (
-                    <ActivityIndicator size="large" color="#0000ff" />
-                ) : (
-                    <TouchableOpacity style={styles.button} onPress={handleGoogleSignIn}>
-                        <AntDesign name="google" size={24} color="#7F7F7F" style={styles.input_icon} />
-                        <Text style={styles.text}>Sign in with Google</Text>
-                    </TouchableOpacity>
+               
+                <TouchableOpacity style={styles.button} onPress={handleGoogleSignIn}>
+                    <AntDesign name="google" size={24} color="#7F7F7F" style={styles.input_icon} />
+                    <Text style={styles.text}>Sign in with Google</Text>
+                </TouchableOpacity>
                     
-                )}
-
             </View>
             
             <View style={styles.end_view}>
@@ -346,5 +343,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#ccc',
   },
+  error_txt : {
+    textAlign:'center',
+    color : '#e25f5fff',
+
+  }
 
 });
