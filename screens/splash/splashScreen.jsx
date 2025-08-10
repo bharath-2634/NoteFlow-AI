@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, Alert } from 'react-native';
-import logo from '../../assests/logo.png';
+import logo from '../../assets/logo.png';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchUserById } from '../../store/auth';

@@ -7,6 +7,8 @@ const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_OAUTH);
 
 const registerUser = async (req, res) => {
+    console,log(req.body);
+    
     try {
         const { userName, email, password, authType = "email",} = req.body;
         console.log("controller");

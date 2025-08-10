@@ -11,7 +11,7 @@ import {
   Image
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import logo from "../../assests/logo.png";
+import logo from "../../assets/logo.png";
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchUserById, updateUserProfile } from '../../store/auth';
