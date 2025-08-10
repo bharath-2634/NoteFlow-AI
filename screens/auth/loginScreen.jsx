@@ -41,7 +41,6 @@ const LoginScreen = ({ navigation }) => {
         await AsyncStorage.setItem("userId", userId);
         NativeModules.NativeStorageModule.saveUserId(userId);
         
-        Alert.alert("Success", "Login successful");
         navigation.replace("Home");
       } else {
         // Alert.alert("Error", "Token missing in response");
