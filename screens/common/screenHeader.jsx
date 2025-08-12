@@ -1,9 +1,9 @@
 import React, { Component, useEffect, useState } from 'react'
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import Feather from 'react-native-vector-icons/Feather';
 import logo from "../../assets/logo.png";
 
-const ScreenHeader = ({user}) => {
+const ScreenHeader = ({user,navigation}) => {
     
     const [userIcon,setUserIcon] = useState('');
     const [userName,setUserName] = useState('');
@@ -23,14 +23,20 @@ const ScreenHeader = ({user}) => {
 
     return (
       <View style={styles.header_container}>
-        <Feather name="message-square" size={24} color="#7F7F7F" style={styles.msg_icon} />
+        <TouchableOpacity style={styles.signUp_btn} onPress={()=>{navigation.replace('Directory')}}>
+            <Feather name="message-square" size={24} color="#7F7F7F" style={styles.msg_icon} />
+        </TouchableOpacity>
+        
         <View style={styles.header_logo}>
             <Image style={styles.header_logoImg} source={logo}/>
             <Text style={styles.header_name}>NoteFlow</Text>
         </View>
-        <View style={styles.header_user}>
-            <Text style={styles.userIcon}>{userIcon}</Text>
-        </View>
+        
+        <TouchableOpacity style={styles.signUp_btn} onPress={()=>{navigation.replace('Directory')}}>
+            <View style={styles.header_user}>
+                <Text style={styles.userIcon}>{userIcon}</Text>
+            </View>
+        </TouchableOpacity>
 
       </View>
     )
@@ -41,7 +47,6 @@ export default ScreenHeader;
 
 const styles = StyleSheet.create({
     header_container: {
-        flex : 1,
         justifyContent: 'space-evenly',
         flexDirection : 'row',
         backgroundColor : '#1F1F1F',
