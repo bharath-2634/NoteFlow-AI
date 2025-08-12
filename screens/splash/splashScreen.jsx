@@ -37,9 +37,9 @@ const SplashScreen = ({ navigation }) => {
     const startScan = async () => {
       try {
         await ScanModule.runOneTimeScan();
-        navigation.replace("Home");
+        // navigation.replace("Home");
       } catch (error) {
-        navigation.replace("Home");
+        // navigation.replace("Home");
       }
     };
 

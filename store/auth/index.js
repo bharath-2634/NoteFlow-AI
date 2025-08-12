@@ -7,7 +7,7 @@ const initialState = {
     isLoading : false,
     user:null
 }
-// 192.168.1.3 192.168.1.3
+// 192.168.1.3 10.1.8.74
 
 export const registerUser = createAsyncThunk(
   "/auth/register",

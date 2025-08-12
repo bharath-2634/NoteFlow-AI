@@ -60,12 +60,14 @@ const styles = StyleSheet.create({
     header_logoImg : {
         width : 27,
         height : 27,
+        marginTop:-3
     },
     header_name: {
-        fontSize: 20,
+        fontSize: 22,
         color: '#FFF',
         fontFamily: 'Poppins-Medium',
         fontWeight: '500',
+        marginTop:3
     },
     header_user : {
         backgroundColor : '#0f42cfff',
