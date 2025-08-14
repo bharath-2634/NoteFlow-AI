@@ -1,9 +1,10 @@
-import React, { Component, useEffect, useState } from 'react'
-import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import React, { Component, useEffect, useState } from 'react';
+import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import logo from "../../assets/logo.png";
+import SettingsModal from './settingsModel';
 
-const ScreenHeader = ({user,navigation}) => {
+const ScreenHeader = ({user,navigation, onUserIconPress}) => {
     
     const [userIcon,setUserIcon] = useState('');
     const [userName,setUserName] = useState('');
@@ -22,25 +23,25 @@ const ScreenHeader = ({user,navigation}) => {
     
 
     return (
-      <View style={styles.header_container}>
-        <TouchableOpacity style={styles.signUp_btn} onPress={()=>{navigation.replace('Directory')}}>
-            <Feather name="message-square" size={24} color="#7F7F7F" style={styles.msg_icon} />
-        </TouchableOpacity>
-        
-        <View style={styles.header_logo}>
-            <Image style={styles.header_logoImg} source={logo}/>
-            <Text style={styles.header_name}>NoteFlow</Text>
-        </View>
-        
-        <TouchableOpacity style={styles.signUp_btn} onPress={()=>{navigation.replace('Directory')}}>
-            <View style={styles.header_user}>
-                <Text style={styles.userIcon}>{userIcon}</Text>
+        <View style={styles.header_container}>
+            <TouchableOpacity style={styles.signUp_btn} onPress={()=>{navigation.replace('Directory')}}>
+                <Feather name="message-square" size={24} color="#7F7F7F" style={styles.msg_icon} />
+            </TouchableOpacity>
+            
+            <View style={styles.header_logo}>
+                <Image style={styles.header_logoImg} source={logo}/>
+                <Text style={styles.header_name}>NoteFlow</Text>
             </View>
-        </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.signUp_btn} onPress={onUserIconPress}>
+                <View style={styles.header_user}>
+                    <Text style={styles.userIcon}>{userIcon}</Text>
+                </View>
+            </TouchableOpacity>
 
-      </View>
+        </View>
     )
-  
+    
 }
 
 export default ScreenHeader;
@@ -89,4 +90,4 @@ const styles = StyleSheet.create({
         marginTop : 3,
         fontFamily : 'Poppins-Medium'
     }
-})
+});

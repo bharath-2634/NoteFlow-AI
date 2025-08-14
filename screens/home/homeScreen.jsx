@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Dimensions, ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Dimensions, ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, TouchableOpacity, TextInput, Modal } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ScreenHeader from '../common/screenHeader';
+import SettingsModal from '../common/settingsModel';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Foundation from 'react-native-vector-icons/Foundation';
 import Feather from 'react-native-vector-icons/Feather';
-
 import Svg, { Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg';
+import { pick, types } from '@react-native-documents/picker';
+import { NativeModules } from 'react-native';
 
 const GradientText = ({ text, colors, fontSize, fontWeight, fontFamily }) => {
   return (
@@ -39,6 +41,60 @@ const GradientText = ({ text, colors, fontSize, fontWeight, fontFamily }) => {
 const HomeScreen = ({ navigation }) => {
     const { user } = useSelector((state) => state.auth);
     const [gemPromt, setGemPrompt] = useState("");
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
+
+    useEffect(() => {
+      const keyboardDidShowListener = Keyboard.addListener(
+        'keyboardDidShow',() => {
+          setKeyboardVisible(true);
+        }
+      );
+      const keyboardDidHideListener = Keyboard.addListener(
+        'keyboardDidHide', () => {
+          setKeyboardVisible(false);
+        }
+      );
+
+      return () => {
+        keyboardDidHideListener.remove();
+        keyboardDidShowListener.remove();
+      };
+    }, []);
+
+   
+    const handleFileSelection = async () => {
+        try {
+            const result = await pick({
+                type: [types.allFiles], 
+                copyTo: 'cachesDirectory',
+            });
+
+            if (result && result.length > 0) {
+                const newFiles = result.map(file => ({
+                    name: file.name,
+                    uri: file.uri,
+                    type: file.type,
+                    size: file.size,
+                }));
+                setSelectedFiles(prevFiles => [...prevFiles, ...newFiles]);
+            }
+
+          
+        } catch (err) {
+            if (DocumentPicker.isCancel(err)) {
+                console.log('Document picking cancelled');
+            } else {
+                console.error('Error picking document:', err);
+            }
+        }
+    };
+
+    const handleRemoveFile = (uri) => {
+      setSelectedFiles(prevFiles => prevFiles.filter(file => file.uri !== uri));
+    };
+
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#1F1F1F' }}>
@@ -47,10 +103,10 @@ const HomeScreen = ({ navigation }) => {
                     <View style={styles.outerContainer}>
                         {/* Header Section */}
                         <View style={styles.headerSection}>
-                            <ScreenHeader user={user} navigation={navigation} />
+                            <ScreenHeader user={user} navigation={navigation} onUserIconPress={() => setShowSettingsModal(true)} />
                         </View>
                         
-                        <View style={styles.mainContentSection}>
+                        <View style={[styles.mainContentSection, isKeyboardVisible && { marginTop: 10 }]}>
                              <ScrollView contentContainerStyle={styles.homeScrollContainer} keyboardShouldPersistTaps="handled" style={{backgroundColor : 'transparent'}}>
                                 
                                 <View style={styles.topContentContainer}>
@@ -70,7 +126,7 @@ const HomeScreen = ({ navigation }) => {
                                             </View>
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity style={styles.actionButton} onPress={() => { }}>
+                                        <TouchableOpacity style={styles.actionButton} onPress={()=>{}}>
                                             <View style={styles.home_card}>
                                                 <Foundation name="upload" size={24} color="#7F7F7F" style={styles.home_icons} />
                                                 <Text style={styles.card_text}>Upload file</Text>
@@ -84,6 +140,23 @@ const HomeScreen = ({ navigation }) => {
                         {/* Prompt Input Box aligned at the bottom */}
                         <View style={styles.promptInputContainer}>
                             <View style={styles.promptInputWrapper}>
+                                {selectedFiles.length > 0 && (
+                                    <ScrollView contentContainerStyle={styles.selectedFilesScrollContent} horizontal={true} showsHorizontalScrollIndicator={false}>
+                                      {selectedFiles.map((file) => (
+                                        <View key={file.uri} style={styles.selectedFileItem}>
+                                          <View style={styles.fileInfoContainer}>
+                                              <View style={{flexDirection: 'column'}}>
+                                                 <Text style={styles.selectedFileName} numberOfLines={1}>{file.name}</Text>
+                                                 {/* <Text style={styles.fileTypeText}>{getFileType(file.name)}</Text> */}
+                                              </View>
+                                          </View>
+                                          <TouchableOpacity onPress={() => handleRemoveFile(file.uri)}>
+                                            <Ionicons name="close-circle-outline" size={20} color="#fff" />
+                                          </TouchableOpacity>
+                                        </View>
+                                      ))}
+                                    </ScrollView>
+                                )}
                                 <View style={styles.prompt_inputContainer}>
                                   <TextInput
                                       style={styles.prompt_inputBox}
@@ -95,7 +168,7 @@ const HomeScreen = ({ navigation }) => {
                                   />
                                 </View>
                                 <View style={styles.promptBox_bottomSheet}>
-                                    <TouchableOpacity style={styles.home_uploadBtn} onPress={() => { }}>
+                                    <TouchableOpacity style={styles.home_uploadBtn} onPress={handleFileSelection}>
                                         <View style={styles.promt_iconView}>
                                            <FontAwesome name="plus" size={24} color="#7F7F7F" style={styles.prompt_boxIcons} />
                                         </View>
@@ -112,6 +185,16 @@ const HomeScreen = ({ navigation }) => {
                     </View>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
+            
+            {/* Settings Modal */}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={showSettingsModal}
+              onRequestClose={() => setShowSettingsModal(false)}
+            >
+              <SettingsModal user={user} onClose={() => setShowSettingsModal(false)} />
+            </Modal>
         </SafeAreaView>
     );
 };
@@ -138,8 +221,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 25,
-        paddingTop: 40, // Add padding to avoid header overlap
-        paddingBottom: 120, // Add padding to avoid prompt input overlap
+        paddingTop: 40,
+        paddingBottom: 120,
     },
     topContentContainer: {
         alignItems: 'center',
@@ -198,21 +281,19 @@ const styles = StyleSheet.create({
     },
     promptInputWrapper: {
         width: '100%',
-        height: 124,
         padding: 10,
         borderColor: '#494848ff',
         borderRadius: 20,
         borderWidth: 2,
-        paddingBottom: 10,
         flex : 1,
-        justifyContent :'center'
+        justifyContent :'center',
+        paddingTop: 10, 
     },
     prompt_inputBox: {
         fontFamily: 'Poppins-Regular',
         fontSize: 18,
         width:'100%',
         color: '#fff',
-        // backgroundColor:'#fff'
     },
     homeScrollContainer: {
         flexGrow: 1,
@@ -223,7 +304,7 @@ const styles = StyleSheet.create({
       width : 40,
       height : 40,
       borderRadius : 50,
-      textAlign :'center',
+      textAlign : 'center',
       alignItems : 'center',
       justifyContent : 'center'
     },
@@ -246,6 +327,36 @@ const styles = StyleSheet.create({
       flexDirection:'row',
       alignItems:'center',
       gap:10
-    }
-
+    },
+    selectedFilesContainer: {
+      flexDirection: 'row',
+      marginBottom: 10,
+      paddingHorizontal: 10,
+      gap: 10,
+    },
+    selectedFilesScrollContent: {
+      alignItems: 'center',
+      paddingRight: 20,
+    },
+    selectedFileItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#323232',
+      borderRadius: 15,
+      padding: 8,
+      gap: 5,
+      width: 150,
+      margin:6
+    },
+    selectedFileName: {
+      color: '#fff',
+      fontFamily: 'Poppins-Regular',
+      fontSize: 14,
+      flexShrink: 1,
+    },
+    fileInfoContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
 });
