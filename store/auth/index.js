@@ -67,7 +67,7 @@ export const logoutUser = createAsyncThunk(
 
   async () => {
     const response = await axios.post(
-      `${BASE_URL}/auth/logout`,
+      `http://192.168.1.3:5000/auth/logout`,
       {},
       {
         withCredentials: true,
