@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -7,17 +7,57 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // This is a placeholder for the new modal component. You will need to create this file.
-const AddLabelsModal = ({ showAddLabelsModal,setShowAddLabelsModal }) => {
+const AddLabelsModal = ({ setShowAddLabelsModal, data }) => {
+    const [newLabel, setNewLabel] = useState('');
+    const [labels, setLabels] = useState(data); // Use internal state for labels
+    
+    const handleAddLabel = () => {
+        if (newLabel.trim() !== '' && !labels.includes(newLabel.trim())) {
+            setLabels([...labels, newLabel.trim()]);
+            setNewLabel('');
+        }
+    };
+
+    const handleRemoveLabel = (labelToRemove) => {
+        setLabels(labels.filter(label => label !== labelToRemove));
+    };
+
     return (
         <View style={modalStyles.modalOverlay}>
             <View style={modalStyles.modalContainer}>
                 <View style={modalStyles.header}>
-                    <TouchableOpacity onPress={()=>{setShowAddLabelsModal(false)}} style={modalStyles.closeButton}>
-                        <AntDesign name="close" size={24} color="#ccc"/>
+                    <TouchableOpacity onPress={() => setShowAddLabelsModal(false)} style={modalStyles.closeButton}>
+                        <AntDesign name="close" size={20} color="#ccc" />
                     </TouchableOpacity>
                     <Text style={modalStyles.headerTitle}>Add Labels</Text>
                 </View>
-                <Text style={modalStyles.modalContentText}>This is the Add Labels Modal. Add your labels here!</Text>
+                {/* Add an input box  */}
+                <View style={modalStyles.inputContainer}>
+                    <TextInput
+                        style={modalStyles.input}
+                        placeholder="Type here..."
+                        placeholderTextColor="#7F7F7F"
+                        value={newLabel}
+                        onChangeText={setNewLabel}
+                        onSubmitEditing={handleAddLabel}
+                    />
+                </View>
+
+                {/* Display labels */}
+                {labels.length > 0 ? (
+                    <ScrollView contentContainerStyle={modalStyles.labelsContainer}>
+                        {labels.map((label, index) => (
+                            <View key={index} style={modalStyles.labelItemContainer}>
+                                <Text style={modalStyles.labelItemText}>{label}</Text>
+                                <TouchableOpacity onPress={() => handleRemoveLabel(label)}>
+                                    <AntDesign name="close" size={16} color="#7F7F7F" />
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+                    </ScrollView>
+                ) : (
+                    <Text style={modalStyles.emptyLabelsText}>Add labels</Text>
+                )}
             </View>
         </View>
     );
@@ -29,6 +69,7 @@ const SettingsModal = ({ user, onClose }) => {
     const userIcon = user?.userName?.charAt(0).toUpperCase() || 'U';
     const userName = user?.userName || 'User Name';
     const userEmail = user?.email || 'user@example.com';
+    const data = user?.className || [];
 
     const renderItem = (icon, text, onPress = () => {}) => (
         <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -92,7 +133,7 @@ const SettingsModal = ({ user, onClose }) => {
                 visible={showAddLabelsModal}
                 onRequestClose={() => setShowAddLabelsModal(false)}
             >
-                <AddLabelsModal showAddLabelsModal={showAddLabelsModal} setShowAddLabelsModal={setShowAddLabelsModal} />
+                <AddLabelsModal setShowAddLabelsModal={setShowAddLabelsModal} data={data}/>
             </Modal>
         </View>
     );
@@ -226,9 +267,10 @@ const modalStyles = StyleSheet.create({
     },
     closeButton: {
         padding: 10,
+        fontSize:12,
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: 18,
         color: '#fff',
         fontFamily: 'Poppins-Medium',
         flex: 1,
@@ -238,6 +280,45 @@ const modalStyles = StyleSheet.create({
     modalContentText: {
         color: '#fff',
         fontFamily: 'Poppins-Regular',
+    },
+    inputContainer: {
+        width: '100%',
+        marginBottom: 20,
+        backgroundColor: '#1F1F1F',
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+    },
+    input: {
+        color: '#fff',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 16,
+    },
+    labelsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+        width: '100%',
+        marginBottom: 10,
+    },
+    labelItemContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#5e5d5dff',
+        borderRadius: 15,
+        padding: 8,
+        paddingHorizontal: 12,
+        alignItems: 'center',
+        gap: 5,
+    },
+    labelItemText: {
+        color: '#fff',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14,
+    },
+    emptyLabelsText: {
+        color: '#7F7F7F',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 16,
     },
 });
 
