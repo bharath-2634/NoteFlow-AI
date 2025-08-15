@@ -27,7 +27,7 @@ const GradientText = ({ text, colors, fontSize, fontWeight, fontFamily }) => {
           fontSize={fontSize}
           fontWeight={fontWeight}
           fontFamily={fontFamily}
-          x="25%"
+          x="20%"
           y={fontSize}
         >
           {text}
@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
     },
     topContentContainer: {
         alignItems: 'center',
+        
     },
     promptInputContainer: {
         position: 'absolute',

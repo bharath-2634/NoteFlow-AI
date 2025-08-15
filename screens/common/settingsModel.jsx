@@ -16,6 +16,8 @@ const AddLabelsModal = ({ setShowAddLabelsModal, data, user }) => {
     const maxVisibleTags = 5;
     const dispatch = useDispatch();
 
+    console.log("data",data);
+
     const handleAddLabel = () => {
         if (newLabel.trim() !== '' && !labels.includes(newLabel.trim())) {
             setLabels([...labels, newLabel.trim()]);
@@ -112,6 +114,7 @@ const SettingsModal = ({ user, onClose,navigation }) => {
     const userEmail = user?.email || 'user@example.com';
     const data = user?.className || [];
 
+    console.log("data",data);
     const dispatch = useDispatch();
     
     const renderItem = (icon, text, onPress = () => {}) => (
@@ -268,7 +271,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     userEmailText: {
-        fontSize: 14,
+        fontSize: 13,
         color: '#919191',
         fontFamily: 'Poppins-Regular',
     },
