@@ -4,7 +4,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import logo from "../../assets/logo.png";
 import SettingsModal from './settingsModel';
 
-const ScreenHeader = ({user,navigation, onUserIconPress}) => {
+const ScreenHeader = ({user,navigation, onUserIconPress, onMenuIconPress}) => {
     
     const [userIcon,setUserIcon] = useState('');
     const [userName,setUserName] = useState('');
@@ -24,7 +24,7 @@ const ScreenHeader = ({user,navigation, onUserIconPress}) => {
 
     return (
         <View style={styles.header_container}>
-            <TouchableOpacity style={styles.signUp_btn} onPress={()=>{navigation.replace('Directory')}}>
+            <TouchableOpacity onPress={onMenuIconPress}>
                 <Feather name="message-square" size={24} color="#7F7F7F" style={styles.msg_icon} />
             </TouchableOpacity>
             

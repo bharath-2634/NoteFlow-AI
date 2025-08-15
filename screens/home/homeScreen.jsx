@@ -11,6 +11,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Svg, { Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { pick, types } from '@react-native-documents/picker';
 import { NativeModules } from 'react-native';
+import Sidebar from '../common/sideBar';
 
 const GradientText = ({ text, colors, fontSize, fontWeight, fontFamily }) => {
   return (
@@ -44,6 +45,7 @@ const HomeScreen = ({ navigation }) => {
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [showSideBar, setShowSideBar] = useState(false);
 
     useEffect(() => {
       const keyboardDidShowListener = Keyboard.addListener(
@@ -103,7 +105,7 @@ const HomeScreen = ({ navigation }) => {
                     <View style={styles.outerContainer}>
                         {/* Header Section */}
                         <View style={styles.headerSection}>
-                            <ScreenHeader user={user} navigation={navigation} onUserIconPress={() => setShowSettingsModal(true)} />
+                            <ScreenHeader user={user} navigation={navigation} onUserIconPress={() => setShowSettingsModal(true)} onMenuIconPress={() => setShowSideBar(true)} />
                         </View>
                         
                         <View style={[styles.mainContentSection, isKeyboardVisible && { marginTop: 10 }]}>
@@ -144,12 +146,7 @@ const HomeScreen = ({ navigation }) => {
                                     <ScrollView contentContainerStyle={styles.selectedFilesScrollContent} horizontal={true} showsHorizontalScrollIndicator={false}>
                                       {selectedFiles.map((file) => (
                                         <View key={file.uri} style={styles.selectedFileItem}>
-                                          <View style={styles.fileInfoContainer}>
-                                              <View style={{flexDirection: 'column'}}>
-                                                 <Text style={styles.selectedFileName} numberOfLines={1}>{file.name}</Text>
-                                                 {/* <Text style={styles.fileTypeText}>{getFileType(file.name)}</Text> */}
-                                              </View>
-                                          </View>
+                                          <Text style={styles.selectedFileName} numberOfLines={1}>{file.name}</Text>
                                           <TouchableOpacity onPress={() => handleRemoveFile(file.uri)}>
                                             <Ionicons name="close-circle-outline" size={20} color="#fff" />
                                           </TouchableOpacity>
@@ -195,6 +192,16 @@ const HomeScreen = ({ navigation }) => {
             >
               <SettingsModal user={user} onClose={() => setShowSettingsModal(false)} navigation={navigation}/>
             </Modal>
+            
+            {/* Sidebar Modal */}
+            <Modal
+              animationType="fade" // Changed to fade for a smoother transition
+              transparent={true}
+              visible={showSideBar}
+              onRequestClose={() => setShowSideBar(false)}
+            >
+              <Sidebar user={user} onClose={() => setShowSideBar(false)} navigation={navigation} />
+            </Modal>
         </SafeAreaView>
     );
 };
@@ -226,7 +233,6 @@ const styles = StyleSheet.create({
     },
     topContentContainer: {
         alignItems: 'center',
-        
     },
     promptInputContainer: {
         position: 'absolute',
@@ -288,7 +294,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         flex : 1,
         justifyContent :'center',
-        paddingTop: 10, 
+        paddingTop: 10, // Added padding to separate files from the top border
     },
     prompt_inputBox: {
         fontFamily: 'Poppins-Regular',
@@ -347,17 +353,12 @@ const styles = StyleSheet.create({
       padding: 8,
       gap: 5,
       width: 150,
-      margin:6
+      margin:5
     },
     selectedFileName: {
       color: '#fff',
       fontFamily: 'Poppins-Regular',
       fontSize: 14,
       flexShrink: 1,
-    },
-    fileInfoContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
     },
 });
