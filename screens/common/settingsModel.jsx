@@ -124,12 +124,19 @@ const SettingsModal = ({ user, onClose,navigation }) => {
     );
 
     const handleLogout = () => {
-        Toast.showWithGravity(
-            'loged out successfully! ',
-            Toast.LONG,
-            Toast.BOTTOM,
-        );
-        const logout_response = dispatch(logoutUser()).then(()=>{navigation.replace('Login')}).catch(()=>{Toast.show('Sorry! Try again later');})
+        // Toast.showWithGravity(
+        //     'loged out successfully! ',
+        //     Toast.LONG,
+        //     Toast.BOTTOM,
+        // );
+        dispatch(logoutUser())
+            .then(() => {
+                navigation.replace('Login');
+            })
+            .catch(() => {
+                Toast.show('Sorry! Try again later');
+            });
+
     }
 
     return (

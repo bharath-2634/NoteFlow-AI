@@ -193,7 +193,7 @@ const HomeScreen = ({ navigation }) => {
               visible={showSettingsModal}
               onRequestClose={() => setShowSettingsModal(false)}
             >
-              <SettingsModal user={user} onClose={() => setShowSettingsModal(false)} />
+              <SettingsModal user={user} onClose={() => setShowSettingsModal(false)} navigation={navigation}/>
             </Modal>
         </SafeAreaView>
     );

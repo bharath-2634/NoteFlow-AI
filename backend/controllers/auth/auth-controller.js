@@ -206,10 +206,12 @@ const googleAuth = async (req, res) => {
 };
 
 const logoutUser = (req, res) => {
+    console.log("Entered Logout");
     res.clearCookie("token").json({
       success: true,
       message: "Logged out successfully!",
     });
+    console.log("After Logout");
 };
 
 const authMiddleware = async (req, res, next) => {

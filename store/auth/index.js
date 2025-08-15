@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import BASE_URL from "../../utils/api";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const initialState = {
     isAuthenticated : false,
@@ -66,8 +67,9 @@ export const logoutUser = createAsyncThunk(
   "/auth/logout",
 
   async () => {
+    console.log("logout User slice")
     const response = await axios.post(
-      `http://192.168.1.3:5000/auth/logout`,
+      `http://192.168.1.3:5000/api/auth/logout`,
       {},
       {
         withCredentials: true,
@@ -75,10 +77,13 @@ export const logoutUser = createAsyncThunk(
     );
 
     const data = response.data;
-    
-    if(data.success) {
-      await AsyncStorage.setItem("token", data.token);
+    console.log("response",data);
+    if (data.success) {
+      console.log("Entered into if")
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("userId");
     }
+
 
     return response.data;
   }
