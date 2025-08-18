@@ -108,6 +108,7 @@ const AddLabelsModal = ({ setShowAddLabelsModal, data, user }) => {
 
 const SettingsModal = ({ user, onClose,navigation }) => {
     const [showAddLabelsModal, setShowAddLabelsModal] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     const userIcon = user?.userName?.charAt(0).toUpperCase() || 'U';
     const userName = user?.userName || 'User Name';
@@ -127,11 +128,6 @@ const SettingsModal = ({ user, onClose,navigation }) => {
     );
 
     const handleLogout = () => {
-        // Toast.showWithGravity(
-        //     'loged out successfully! ',
-        //     Toast.LONG,
-        //     Toast.BOTTOM,
-        // );
         dispatch(logoutUser())
             .then(() => {
                 navigation.replace('Login');
@@ -139,7 +135,6 @@ const SettingsModal = ({ user, onClose,navigation }) => {
             .catch(() => {
                 Toast.show('Sorry! Try again later');
             });
-
     }
 
     return (
@@ -176,7 +171,7 @@ const SettingsModal = ({ user, onClose,navigation }) => {
                             () => setShowAddLabelsModal(true)
                         )}
                         {renderItem(<MaterialIcons name="security" size={24} color="#5e5d5dff" />, 'Security and Privacy Hub',()=>{Toast.show('This is a short toast');})}
-                        {renderItem(<MaterialIcons name="logout" size={24} color="#5e5d5dff" />, 'Logout',()=>{handleLogout()})}
+                        {renderItem(<MaterialIcons name="logout" size={24} color="#5e5d5dff" />, 'Logout',()=>{setShowLogoutModal(true)})}
                         {renderItem(<MaterialCommunityIcons name="trash-can-outline" size={24} color="#5e5d5dff" />, 'Clear Chats and Gems')}
                         {renderItem(<MaterialIcons name="tips-and-updates" size={24} color="#5e5d5dff" />, 'Updates')}
                         {renderItem(<Ionicons name="settings-outline" size={24} color="#5e5d5dff" />, 'Settings')}
@@ -194,6 +189,27 @@ const SettingsModal = ({ user, onClose,navigation }) => {
                 onRequestClose={() => setShowAddLabelsModal(false)}
             >
                 <AddLabelsModal setShowAddLabelsModal={setShowAddLabelsModal} data={data} user={user} />
+            </Modal>
+
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={showLogoutModal}
+              onRequestClose={() => setShowLogoutModal(false)}
+            >
+              <View style={styles.logoutModalOverlay}>
+                <View style={styles.logoutModalContainer}>
+                  <Text style={styles.logoutModalTitle}>Are you sure you want to log out?</Text>
+                  <View style={styles.logoutModalButtons}>
+                    <TouchableOpacity onPress={() => setShowLogoutModal(false)} style={styles.cancelLogoutButton}>
+                      <Text style={styles.cancelLogoutButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => { setShowLogoutModal(false); handleLogout(); }} style={styles.confirmLogoutButton}>
+                      <Text style={styles.confirmLogoutButtonText}>Logout</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
             </Modal>
         </View>
     );
@@ -300,6 +316,54 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontFamily: 'Poppins-Regular',
         marginLeft: 20,
+    },
+    logoutModalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(36, 36, 36, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    logoutModalContainer: {
+        width: '80%',
+        backgroundColor: '#313131ff',
+        borderRadius: 10,
+        padding: 20,
+        alignItems: 'center',
+    },
+    logoutModalTitle: {
+        fontSize: 18,
+        color: '#fff',
+        fontFamily: 'Poppins-Medium',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    logoutModalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        gap: 10,
+    },
+    cancelLogoutButton: {
+        flex: 1,
+        backgroundColor: '#494848ff',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    cancelLogoutButtonText: {
+        color: '#fff',
+        fontFamily: 'Poppins-Medium',
+    },
+    confirmLogoutButton: {
+        flex: 1,
+        backgroundColor: '#1f72f7ff',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    confirmLogoutButtonText: {
+        color: '#fff',
+        fontFamily: 'Poppins-Medium',
     },
 });
 
