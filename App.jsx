@@ -13,6 +13,7 @@ import PermissionsScreen from './screens/splash/permissionsScreen.jsx';
 import { setupGoogleSignin } from './utils/googleBtn.js';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import SettingsModal from './screens/common/settingsModel.jsx';
+import LibraryScreen from './screens/home/libraryScreen.jsx';
 
 
 const Stack = createNativeStackNavigator();
@@ -40,6 +41,7 @@ const App = () => {
           <Stack.Screen name="Register" component={SignUpScreen}/>
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="PopUp" component={SettingsModal} />
+          <Stack.Screen name="Library" component={LibraryScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

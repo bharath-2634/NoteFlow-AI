@@ -145,7 +145,6 @@ const AddLabelsModal = ({ setShowAddLabelsModal, data, user }) => {
                 </View>
             </View>
 
-            {/* Modal to display all labels */}
             <Modal
                 animationType="slide"
                 transparent={true}
