@@ -10,13 +10,56 @@ import { logoutUser, updateUserProfile } from '../../store/auth';
 import Toast from 'react-native-simple-toast';
 
 
+const AllLabelsModal = ({ labels, onClose, onRemoveLabel }) => {
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredLabels = labels.filter(label =>
+        label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+        <View style={modalStyles.modalOverlay}>
+            <View style={modalStyles.allLabelsModalContainer}>
+                <View style={{width:'100%',height:60,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                    <TouchableOpacity onPress={onClose} style={modalStyles.closeButton}>
+                        <AntDesign name="close" size={20} color="#ccc" />
+                    </TouchableOpacity>
+                    <Text style={{fontFamily:'Poppins-Regular',color:'#fff',fontSize:18,textAlign:'start',width:'100%',marginLeft:20}}>find your tags !</Text>
+                </View>
+                <View style={modalStyles.searchContainer}>
+                    <AntDesign name="search1" size={20} color="#7F7F7F" style={modalStyles.searchIcon} />
+                    <TextInput
+                        style={modalStyles.searchInput}
+                        placeholder="find your labels.."
+                        placeholderTextColor="#7F7F7F"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                </View>
+                <ScrollView style={modalStyles.allLabelsList}>
+                    {filteredLabels.map((label, index) => (
+                        <View key={index} style={modalStyles.allLabelsItem}>
+                            <View style={modalStyles.labelInfo}>
+                                <AntDesign name="tags" size={20} color="#7F7F7F" />
+                                <Text style={modalStyles.allLabelsText}>{label}</Text>
+                            </View>
+                            <TouchableOpacity onPress={() => onRemoveLabel(label)}>
+                                <MaterialCommunityIcons name="trash-can-outline" size={24} color="#7F7F7F" />
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </ScrollView>
+            </View>
+        </View>
+    );
+};
+
 const AddLabelsModal = ({ setShowAddLabelsModal, data, user }) => {
     const [newLabel, setNewLabel] = useState('');
     const [labels, setLabels] = useState(data);
+    const [showAllLabelsModal, setShowAllLabelsModal] = useState(false);
     const maxVisibleTags = 5;
     const dispatch = useDispatch();
-
-    console.log("data",data);
 
     const handleAddLabel = () => {
         if (newLabel.trim() !== '' && !labels.includes(newLabel.trim())) {
@@ -86,9 +129,9 @@ const AddLabelsModal = ({ setShowAddLabelsModal, data, user }) => {
                             </View>
                         ))}
                         {remainingCount > 0 && (
-                            <View style={modalStyles.labelItemContainer}>
+                            <TouchableOpacity onPress={() => setShowAllLabelsModal(true)} style={modalStyles.labelItemContainer}>
                                 <Text style={modalStyles.labelItemText}>{`${remainingCount}+`}</Text>
-                            </View>
+                            </TouchableOpacity>
                         )}
                     </ScrollView>
                 ) : (
@@ -101,6 +144,20 @@ const AddLabelsModal = ({ setShowAddLabelsModal, data, user }) => {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            {/* Modal to display all labels */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={showAllLabelsModal}
+                onRequestClose={() => setShowAllLabelsModal(false)}
+            >
+                <AllLabelsModal
+                    labels={labels}
+                    onClose={() => setShowAllLabelsModal(false)}
+                    onRemoveLabel={handleRemoveLabel}
+                />
+            </Modal>
            
         </View>
     );
@@ -115,7 +172,6 @@ const SettingsModal = ({ user, onClose,navigation }) => {
     const userEmail = user?.email || 'user@example.com';
     const data = user?.className || [];
 
-    console.log("data",data);
     const dispatch = useDispatch();
     
     const renderItem = (icon, text, onPress = () => {}) => (
@@ -383,6 +439,16 @@ const modalStyles = StyleSheet.create({
         borderColor: '#494848ff',
         borderWidth: 1,
     },
+    allLabelsModalContainer: {
+        width: '80%',
+        backgroundColor: '#313131ff',
+        borderRadius: 20,
+        padding: 20,
+        alignItems: 'center',
+        borderColor: '#494848ff',
+        borderWidth: 1,
+        maxHeight: '80%',
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'start',
@@ -499,6 +565,46 @@ const modalStyles = StyleSheet.create({
     toastText: {
         color: '#fff',
         fontFamily: 'Poppins-Regular',
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#1F1F1F',
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        marginBottom: 20,
+        width: '100%',
+    },
+    searchIcon: {
+        marginRight: 10,
+    },
+    searchInput: {
+        flex: 1,
+        color: '#fff',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 16,
+        paddingVertical: 8,
+    },
+    allLabelsList: {
+        width: '100%',
+    },
+    allLabelsItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#494848ff',
+    },
+    labelInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    allLabelsText: {
+        color: '#fff',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 16,
+        marginLeft: 10,
     },
 });
 
