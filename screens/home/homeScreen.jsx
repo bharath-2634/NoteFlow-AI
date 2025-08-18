@@ -105,7 +105,7 @@ const HomeScreen = ({ navigation }) => {
                     <View style={styles.outerContainer}>
                         {/* Header Section */}
                         <View style={styles.headerSection}>
-                            <ScreenHeader user={user} navigation={navigation} onUserIconPress={() => setShowSettingsModal(true)} onMenuIconPress={() => setShowSideBar(true)} />
+                            <ScreenHeader user={user} navigation={navigation} onUserIconPress={() => setShowSettingsModal(true)} onMenuIconPress={() => setShowSideBar(true)} screen={'Home'}/>
                         </View>
                         
                         <View style={[styles.mainContentSection, isKeyboardVisible && { marginTop: 10 }]}>

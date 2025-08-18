@@ -1,11 +1,14 @@
 import React, { Component, useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import logo from "../../assets/logo.png";
 import SettingsModal from './settingsModel';
 
-const ScreenHeader = ({user,navigation, onUserIconPress, onMenuIconPress}) => {
+const ScreenHeader = ({user, navigation, onUserIconPress, onMenuIconPress, screen}) => {
     
+    console.log("screen value",navigation);
+
     const [userIcon,setUserIcon] = useState('');
     const [userName,setUserName] = useState('');
 
@@ -20,13 +23,26 @@ const ScreenHeader = ({user,navigation, onUserIconPress, onMenuIconPress}) => {
         }
 
     },[]);
+
+    const onBackPress = () => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        }else {
+            navigation.replace('Home');
+        }
+    };
     
 
     return (
         <View style={styles.header_container}>
-            <TouchableOpacity onPress={onMenuIconPress}>
+            {
+                screen=='Home' ? <TouchableOpacity onPress={onMenuIconPress}>
                 <Feather name="message-square" size={24} color="#7F7F7F" style={styles.msg_icon} />
+            </TouchableOpacity> : <TouchableOpacity onPress={()=>{onBackPress()}}>
+                <Ionicons name="arrow-back" size={24} color="#7F7F7F" style={styles.msg_icon} />
             </TouchableOpacity>
+            }
+            
             
             <View style={styles.header_logo}>
                 <Image style={styles.header_logoImg} source={logo}/>
