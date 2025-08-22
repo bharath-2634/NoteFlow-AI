@@ -16,7 +16,7 @@ export const registerUser = createAsyncThunk(
       try {
         console.log("Entered here!",formData);
           const response = await axios.post(
-              `http://10.1.4.126:5000/api/auth/register`,
+              `http://192.168.1.3:5000/api/auth/register`,
               formData,
           );
           console.log("userData",response);
@@ -32,7 +32,7 @@ export const loginUser = createAsyncThunk(
   "/auth/login",
   async (formData) => {
     const response = await axios.post(
-      `http://10.1.4.126:5000/api/auth/login`,
+      `http://192.168.1.3:5000/api/auth/login`,
       formData,
       {
         withCredentials: true,
@@ -49,7 +49,7 @@ export const googleLogin = createAsyncThunk(
     console.log("Slice Enter", token);
     
     const response = await axios.post(
-      `http://10.1.4.126:5000/api/auth/google`,
+      `http://192.168.1.3:5000/api/auth/google`,
       { token },
       { withCredentials: true}
     );
@@ -69,7 +69,7 @@ export const logoutUser = createAsyncThunk(
   async () => {
     console.log("logout User slice")
     const response = await axios.post(
-      `http://10.1.4.126:5000/api/auth/logout`,
+      `http://192.168.1.3:5000/api/auth/logout`,
       {},
       {
         withCredentials: true,
@@ -94,7 +94,7 @@ export const checkAuth = createAsyncThunk(
 
   async () => {
     const response = await axios.get(
-      `http://10.1.4.126:5000/api/auth/check-auth`,
+      `http://192.168.1.3:5000/api/auth/check-auth`,
       {
         withCredentials: true,
         headers: {
@@ -113,7 +113,7 @@ export const fetchUserById = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://10.1.4.126:5000/api/auth/user/${userId}`,
+        `http://192.168.1.3:5000/api/auth/user/${userId}`,
         { withCredentials: true }
       );
 
@@ -130,7 +130,7 @@ export const updateUserProfile = createAsyncThunk(
     try {
       console.log("userUpdate",updatedUser);
       const response = await axios.put(
-        "http://10.1.4.126:5000/api/auth/updateUser",
+        "http://192.168.1.3:5000/api/auth/updateUser",
         { user: updatedUser },
         { withCredentials: true }
       );

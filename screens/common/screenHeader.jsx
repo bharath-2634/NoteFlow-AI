@@ -36,11 +36,12 @@ const ScreenHeader = ({user, navigation, onUserIconPress, onMenuIconPress, scree
     return (
         <View style={styles.header_container}>
             {
-                screen=='Home' ? <TouchableOpacity onPress={onMenuIconPress}>
-                <Feather name="message-square" size={24} color="#7F7F7F" style={styles.msg_icon} />
-            </TouchableOpacity> : <TouchableOpacity onPress={()=>{onBackPress()}}>
-                <Ionicons name="arrow-back" size={24} color="#7F7F7F" style={styles.msg_icon} />
-            </TouchableOpacity>
+                screen=='Home' ? 
+                <TouchableOpacity onPress={onMenuIconPress}>
+                    <Feather name="message-square" size={24} color="#7F7F7F" style={styles.msg_icon} />
+                </TouchableOpacity> : <TouchableOpacity onPress={()=>{onBackPress()}}>
+                    <Ionicons name="arrow-back" size={24} color="#7F7F7F" style={styles.msg_icon} />
+                </TouchableOpacity>
             }
             
             
