@@ -67,8 +67,9 @@ const LibraryScreen = ({ navigation }) => {
                                         contentContainerStyle={styles.flatListContent}
                                     />
                                     {tags.length > 6 && (
-                                        <TouchableOpacity onPress={() => setShowAllFoldersModal(true)} style={styles.allFoldersButton}>
-                                            <Text style={styles.allFoldersText}>All folders <FontAwesome name="angle-right" size={24} color="#7F7F7F" style={styles.left_arrow}/></Text>
+                                        <TouchableOpacity onPress={() => navigation.replace('LibraryScreen')} style={styles.allFoldersButton}>
+                                            <Text style={styles.allFoldersText}>All folders </Text>
+                                            <FontAwesome name="angle-right" size={24} color="#7F7F7F" style={styles.left_arrow}/>
                                         </TouchableOpacity>
                                     )}
                                 </>
@@ -176,11 +177,10 @@ const styles = StyleSheet.create({
         marginTop: 50,
     },
     allFoldersButton: {
-        flex:1,
-        alignSelf: 'center',
         textAlign:'center',
         justifyContent:'center',
         alignItems:'center',
+        flexDirection:'row',
         gap:5,
         width:'100%'
     },
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     left_arrow : {
-      marginLeft:10,
-      marginTop:1
+      marginLeft:3,
+      marginTop:-3
     }
 });
