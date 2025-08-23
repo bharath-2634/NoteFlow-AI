@@ -121,7 +121,7 @@ const HomeScreen = ({ navigation }) => {
                                     />
                                     <Text style={styles.sub_text}>What we are working Today ?</Text>
                                     <View style={styles.home_cardContainer}>
-                                        <TouchableOpacity style={styles.actionButton} onPress={() => { navigation.replace('Library') }}>
+                                        <TouchableOpacity style={styles.actionButton} onPress={() => { navigation.navigate('Library') }}>
                                             <View style={styles.home_card}>
                                                 <Ionicons name="library" size={24} color="#7F7F7F" style={styles.home_icons} />
                                                 <Text style={styles.card_text}>Our Library</Text>

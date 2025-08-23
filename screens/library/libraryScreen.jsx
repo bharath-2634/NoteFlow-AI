@@ -16,8 +16,8 @@ const LibraryScreen = ({ navigation }) => {
     const [showSideBar, setShowSideBar] = useState(false);
     const [showAllFoldersModal, setShowAllFoldersModal] = useState(false);
 
-    // This useEffect is to handle keyboard visibility
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    
     useEffect(() => {
       const keyboardDidShowListener = Keyboard.addListener(
         'keyboardDidShow',() => {
@@ -63,11 +63,11 @@ const LibraryScreen = ({ navigation }) => {
                                         keyExtractor={(item) => item}
                                         renderItem={renderFolder}
                                         style={styles.folderList}
-                                        numColumns={2} // Changed to 2 columns
+                                        numColumns={2}
                                         contentContainerStyle={styles.flatListContent}
                                     />
                                     {tags.length > 6 && (
-                                        <TouchableOpacity onPress={() => navigation.replace('LibraryScreen')} style={styles.allFoldersButton}>
+                                        <TouchableOpacity onPress={() => navigation.navigate('LibraryScreen')} style={styles.allFoldersButton}>
                                             <Text style={styles.allFoldersText}>All folders </Text>
                                             <FontAwesome name="angle-right" size={24} color="#7F7F7F" style={styles.left_arrow}/>
                                         </TouchableOpacity>

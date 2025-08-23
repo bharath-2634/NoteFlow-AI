@@ -27,8 +27,6 @@ const ScreenHeader = ({user, navigation, onUserIconPress, onMenuIconPress, scree
     const onBackPress = () => {
         if (navigation.canGoBack()) {
             navigation.goBack();
-        }else {
-            navigation.replace('Home');
         }
     };
     
