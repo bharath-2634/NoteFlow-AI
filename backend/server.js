@@ -18,7 +18,7 @@ mongoose
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-// 192.168.1.3 10.1.8.74
+// 192.168.1.3 10.1.8.74 10.1.2.7
 app.use(
     cors({
       origin: "http://192.168.1.3:19006",

@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit
 import com.noteflow_ai.SAFPackage
 import com.noteflow_ai.ScanPackage
 import com.noteflow_ai.MyAppPackage
+import androidx.work.ExistingPeriodicWorkPolicy
 
 class MainApplication : Application(), ReactApplication {
 
@@ -48,6 +49,11 @@ class MainApplication : Application(), ReactApplication {
             15, TimeUnit.MINUTES
         ).addTag("LoggerTask").build()
 
-        WorkManager.getInstance(this).enqueue(periodicLogger)
+        Log.d("MainApplication","for every 15 min")
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "LoggerTask",                               
+            ExistingPeriodicWorkPolicy.KEEP,            // keep the existing one, don’t enqueue new
+            periodicLogger
+        )
     }
 }
