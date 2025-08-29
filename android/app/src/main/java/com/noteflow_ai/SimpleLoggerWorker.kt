@@ -161,9 +161,11 @@ class SimpleLoggerWorker(
         }
 
         Log.d(TAG, "🧠 Total new documents to classify: ${newDocsToClassify.size}")
-
+        
         val db = AppDatabase.getInstance(applicationContext)
         val dao = db.documentDao()
+
+        Log.d(TAG, "After  Initializing Room database ")
 
         val sharedPrefs = applicationContext.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         val currentUserId = sharedPrefs.getString("current_user_id", null)
@@ -172,14 +174,25 @@ class SimpleLoggerWorker(
       
         for (uri in newDocsToClassify) {
 
-            val fileName = DocumentFile.fromSingleUri(applicationContext, uri)?.name ?: "unknown.pdf"
+            Log.d(TAG, "Entered into the loop")
+
+            val fileName = when (uri.scheme) {
+                "file" -> File(uri.path!!).name
+                "content" -> DocumentFile.fromSingleUri(applicationContext, uri)?.name
+                else -> null
+            }?: "unknown.pdf"
+
             val uriString = uri.toString()
             
+            Log.d(TAG, "URI ${uriString}")
+
             val existing = dao.getDocumentByUri(uriString)
-            //if(existing!=null) {
-                //Log.d(TAG,"Existing File ${existing.status}")
-            //}
+            if(existing!=null) {
+                Log.d(TAG,"Existing File ${existing.status}")
+            }
             
+            Log.d(TAG, "Ater checking the File premisis")
+
             if (existing == null || existing.status == "pending" || existing.status == "failed") {
                 
                 if(existing == null) {
@@ -194,6 +207,7 @@ class SimpleLoggerWorker(
                     dao.insert(document)
                 }
                 
+                Log.d(TAG, "After  Initializing Room database-I")
                 
                 val inputData = Data.Builder()
                     .putString("uri", uriString)
@@ -204,10 +218,11 @@ class SimpleLoggerWorker(
                     .setInputData(inputData)
                     .build()
 
+                Log.d(TAG, "Workload sent to fileClassificationWorker")
+
                 WorkManager.getInstance(applicationContext).enqueue(workRequest)
             }
         }
-
 
         sharedPreferences.edit().putLong("lastCheckTimestamp", currentTime).apply()
 

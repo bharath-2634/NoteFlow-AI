@@ -22,48 +22,47 @@ class FileClassificationWorker(
 
     private val TAG = "ClassificationWorker"
     
-    private val API_BASE_URL = "https://noteflow-backend-993827039568.us-central1.run.app/classify"
+    private val API_BASE_URL = "https://ca221342b518.ngrok-free.app"
     // private val USER_ID = "6863b27fdc31892b932ab086"
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+    val userId = inputData.getString("user_id")
+    val uriString = inputData.getString("uri")
 
-        val userId = inputData.getString("user_id")
-
-        Log.d(TAG,"UserId from ${userId}")
-        if (userId.isNullOrBlank()) {
-            Log.e(TAG, "❌ User ID not provided in InputData. Cannot proceed with classification.")
-            // Return failure since the user ID is a required piece of data
-            return@withContext Result.failure()
-        }
-
-        Log.d(TAG,"User Id from FileClassificationWorker ${userId}" )
-        val db = AppDatabase.getInstance(applicationContext)
-        val dao = db.documentDao()
-        
-        val pendingDocs = dao.getByStatus("failed")
-        
-
-        for (doc in pendingDocs) {
-            
-            val uri = Uri.parse(doc.uri)
-            val fileName = doc.fileName ?: "unknown_file"
-            val fileBytes = readFileBytesFromUri(applicationContext, uri)
-            
-            if (fileBytes == null || fileBytes.isEmpty()) {
-                Log.e(TAG, "❌ Failed to read bytes for ${doc.fileName}")
-                dao.update(doc.copy(status = "failed"))
-                continue
-            }
-
-            val result = classifyAndUpdate(doc, fileBytes, dao, userId)
-            Log.d(TAG,"Result of Classification: ${result}")
-            if (!result) {
-                dao.update(doc.copy(status = "failed"))
-            }
-        }
-
-        return@withContext Result.success()
+    if (userId.isNullOrBlank() || uriString.isNullOrBlank()) {
+        Log.e(TAG, "❌ Missing user_id or uri in InputData")
+        return@withContext Result.failure()
     }
+
+    val db = AppDatabase.getInstance(applicationContext)
+    val dao = db.documentDao()
+
+    val doc = dao.getDocumentByUri(uriString)
+    if (doc == null) {
+        Log.e(TAG, "❌ No document found in DB for URI: $uriString")
+        return@withContext Result.failure()
+    }
+
+    Log.d(TAG, "📂 Starting classification for ${doc.fileName}")
+
+    val uri = Uri.parse(uriString)
+    val fileBytes = readFileBytesFromUri(applicationContext, uri)
+
+    if (fileBytes.isNullOrEmpty()) {
+        Log.e(TAG, "❌ Failed to read bytes for ${doc.fileName}")
+        dao.update(doc.copy(status = "failed"))
+        return@withContext Result.failure()
+    }
+
+    val success = classifyAndUpdate(doc, fileBytes, dao, userId)
+    if (!success) {
+        dao.update(doc.copy(status = "failed"))
+        return@withContext Result.retry()
+    }
+
+    Result.success()
+}
+
 
     private suspend fun classifyAndUpdate(
         doc: ClassifiedDocument,
