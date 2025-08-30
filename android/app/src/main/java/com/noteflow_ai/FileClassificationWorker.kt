@@ -86,7 +86,7 @@ class FileClassificationWorker(
         
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart("user_id", userId)
-            .addFormDataPart("file", doc.fileName, fileBytes.toRequestBody("application/octet-stream".toMediaTypeOrNull()))
+            .addFormDataPart("file", doc.fileName, fileBytes.toRequestBody("multipart/form-data".toMediaTypeOrNull()))
             .build()
         Log.d(TAG,"Request Body ${requestBody}")
         val request = Request.Builder()
